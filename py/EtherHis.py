@@ -1,6 +1,10 @@
 var_types = ["uint", "int", "bool", "address", "bytes", "string"]
 nodes = ["user0", "user1", "user2", "user3", "user4", "user5"]
 
+ASSERT_ACCOUNT_BALANCE = 0
+ASSERT_VAR = 1
+ASSERT_TRANSACTION_SUCCESS = 2
+
 class Var:
     def __init__(self, type, value):
         self.type = type
@@ -22,18 +26,47 @@ class Transaction:
     def isValid(self):
         return True
 
-
-class Assertion:
-    def __init__(self):
+class EthAssert:
+    def __init__(self, cond, params):
+        self.cond = cond
+        self.params = params
         return
-                
+
+    def isTrue(self):
+        if (cond == ASSERT_ACCOUNT_BALANCE):
+            #To be implemented
+            return True
+        if (cond == ASSERT_VAR):
+            #To be implemented
+            return True
+        if (cond == ASSERT_TRANSACTION_SUCCESS):
+            #To be implemented
+            return True
+        return True
+
+class Branch:
+    def __init__(self, assertion, true_br = None, false_br = None):
+        self.assertion = assertion
+        self.true_br = true_br
+        self.false_br = false_br
+
+    def eva(self):
+        return self.true_br if self.assertion.isTrue() else self.false_br
+    
+class State:
+    def __init__(self, name):
+        self.transactions = []
+        self.name = name
+        
+    def isValid(self):
+        for h in self.transactions:
+            if h.__class__ is not Transaction and h.__class__ is not EthAssert and h.__class__ is not Branch:
+                return False
+
 class TransactionHistory:
     def __init__(self):
         self.history = []
     def isValid(self):
-        for h in self.history:
-            if h.__class__ is not Transaction and h.__class__ is not Assertion:
-                return False
         return True
 
 class IntRange:
