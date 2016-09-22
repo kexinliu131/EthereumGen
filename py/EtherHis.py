@@ -36,11 +36,70 @@ class TransactionHistory:
                 return False
         return True
 
+class IntRange:
+    def __init__(self,string):
+        self.strlist = str.split(string,"||")
+        self.intlist = []
+        for s in self.strlist:
+            s = s.replace(" ","")
+            i = 0
+            start = 0
+            end = 0
+            #print s
+            index = s.find("_")
+            if (index == -1):
+                start = end = int(s)
+            else:
+                start = int(s[:index])
+                end = int(s[index+1:])
+                if start > end:
+                    start,end = end,start
+            done = False
+            while i < len(self.intlist):
+                if self.intlist[i] > end:
+                    self.intlist.insert(i,end)
+                    self.intlist.insert(i,start)
+                    done = True
+                    break
+                elif self.intlist[i+1] < start:
+                    i+=2
+                elif self.intlist[i+1] < end and self.intlist[i] > start:
+                    self.intlist[i] = start
+                    self.intlist[i+1] = end
+                    done = True
+                    break
+                else:
+                    done = True
+                    break
+
+            if not done:
+                self.intlist.append(start)
+                self.intlist.append(end)
+
+        self.num_count = 0
+
+        flag = False
+        temp = 0
+        for num in self.intlist:
+            if not flag:
+                flag = True
+                temp = num
+            else:
+                flag = False
+                self.num_count += num - temp + 1
+    def __str__(self):
+        return str(self.num_count) + "\n" + str(self.intlist)
+    
 def main():
+    """
     a = 1
     th = TransactionHistory()
     th.history.append(1)
     print str(th.isValid())
+    """
+
+    b = IntRange("-1000_-995||-20_0||-500_-400||4_1||999||45_50||100_200")
+    print str(b)
 
 if __name__=="__main__":
     main()

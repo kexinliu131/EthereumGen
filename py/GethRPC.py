@@ -33,6 +33,32 @@ class GethRPCController:
 	}
         response = requests.post(self.url, data=json.dumps(payload), headers=self.headers).json()
         return int(response[u'result'],0)
+
+
+    # not tested yet
+    def call(self, from_addr , to_addr, gas=0 , gas_price=0, value=0, data=""):
+        params = {"to":to_addr}
+
+        if not from_addr=="":
+            params["from"] = from_addr
+        if not gas==0:
+            params["gas" == gas]
+        if not gas_price == 0:
+            params["gas_price"] = gas_price
+        if not value == 0:
+            params["value"] = value
+        if not data == "":
+            params["data"] = data
+        
+        payload = {
+            "jsonrpc":"2.0",
+            "method":"eth_call",
+            "params":[params],
+            "id":1
+        }
+        
+        response = requests.post(self.url, data=json.dumps(payload), headers=self.headers).json()
+        return str(response)
         
 def main():
     cont = GethRPCController("localhost","8101")
