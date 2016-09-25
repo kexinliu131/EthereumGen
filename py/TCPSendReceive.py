@@ -10,19 +10,19 @@ nc 127.0.0.1 8881 | command
 
 class Sender:
 
-	def __init__(self, ip = '127.0.0.1', out_port = 8882, buffer_size = 65536):
+        def __init__(self, ip = '127.0.0.1', out_port = 8881, buffer_size = 65536):
 
-		self.tcp_ip = ip
-		self.tcp_out_port = out_port
-		
-		self.buffer_size = buffer_size
-			
-		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-		self.s.connect((self.tcp_ip, self.tcp_out_port))
-		print "Sender: port connected"
-			
-	def send(self, msg):
-		return self.s.send(msg)
+                self.tcp_ip = ip
+                self.tcp_out_port = out_port
+                
+                self.buffer_size = buffer_size
+                        
+                self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+                self.s.connect((self.tcp_ip, self.tcp_out_port))
+                print "Sender: port connected"
+        def send(self, msg):
+                self.s.sendall(msg + "\n")
+                #self.s.close()
 
 
 """
@@ -53,7 +53,7 @@ class Receiver:
         while True:
             buf = self.connection.recv(64)
             if len(buf) > 0:
-                print buf
+                #print buf
                 return buf
 """
 # Main function for Receiver
@@ -67,10 +67,12 @@ def main():
 
 # Main function for sender
 def main():
-	t = Sender()
-	
-	while True:
-		t.send(raw_input())
+        t = Sender()
+        
+        while True:
+                print "enter input:"
+                data = raw_input()
+                t.send(data)
 
 if __name__ == "__main__":
-	main()
+        main()
