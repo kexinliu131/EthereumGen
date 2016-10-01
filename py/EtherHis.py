@@ -1,8 +1,8 @@
 var_types = ["uint", "int", "bool", "address", "bytes", "string"]
-nodes = ["user0", "user1", "user2", "user3", "user4", "user5"]
+nodes = ["user0", "user1", "user2", "user3", "user4", "user5", "any", "owner", "any_user", "any_contract"]
 
 ASSERT_ACCOUNT_BALANCE = 0
-ASSERT_VAR = 1
+tASSERT_VAR = 1
 ASSERT_TRANSACTION_SUCCESS = 2
 
 class Var:
@@ -12,18 +12,6 @@ class Var:
     def isValid(self):
         if self.type not in var_types:
             return False
-        return True
-    
-class Transaction:
-    def __init__(self, is_to_contract, address, value, gas, repeat = 1, function = "", param = []):
-        self.is_to_contract = is_to_contract
-        self.address = address
-        self.value = value
-        self.gas = gas
-        self.repeat = repeat
-        self.function = function
-        self.param = param
-    def isValid(self):
         return True
 
 class EthAssert:
@@ -122,7 +110,32 @@ class IntRange:
                 self.num_count += num - temp + 1
     def __str__(self):
         return str(self.num_count) + "\n" + str(self.intlist)
-    
+
+    def gen_random_number(self):
+        from random import randint
+        n = randint(0, self.num_count - 1)
+        i = 0
+        while i < len(self.intlist):
+            if self.intlist[i+1] - self.intlist[i] + 1 < n:
+                n -= self.intlist[i+1] - self.intlist[i] + 1
+                i += 2
+            else:
+                return self.intlist[i] + n
+
+        return self.intlist[len(self.intlist)-1]
+
+class Transaction:
+    def __init__(self, from_account, to_account, value, gas = IntRange("300000"), repeat = IntRange("1"), function = "", param = []):
+        self.from_account = from_account
+        self.to_account = to_account
+        self.value = value
+        self.gas = gas
+        self.repeat = repeat
+        self.function = function
+        self.param = param
+    def isValid(self):
+        return True
+
 def main():
     """
     a = 1
@@ -131,8 +144,19 @@ def main():
     print str(th.isValid())
     """
 
+    """
     b = IntRange("-1000_-995||-20_0||-500_-400||4_1||999||45_50||100_200")
     print str(b)
+
+    for i in range (0,10):
+        print str(b.gen_random_number())
+    """
+
+    c = IntRange("1")
+    print str(c)
+
+    for i in range (0,10):
+        print str(c.gen_random_number())
 
 if __name__=="__main__":
     main()
