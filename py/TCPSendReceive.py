@@ -51,10 +51,22 @@ class Receiver:
 
     def receive(self): 
         while True:
-            buf = self.connection.recv(64)
+            buf = self.trim_msg(self.connection.recv(65536))
             if len(buf) > 0:
                 #print buf
                 return buf
+    def trim_msg(self, msg):
+        # remove consecutive end of lines
+        msg = msg.replace('> \n', "").replace('\n+','\n')
+        # remove ending '> '
+        if len(msg)>=2 and msg[-2:] == '> ':
+            msg = msg[:-2]
+        # remove leading end of line
+        if len(msg) > 0 and msg[0] == '\n':
+            msg = msg[1:]
+
+        # return empty string if msg has only a single end of line
+        return msg if msg != "\n" else ""
 """
 # Main function for Receiver
 def main():
@@ -64,7 +76,7 @@ def main():
     while True:
         r.receive()
 """
-
+    
 # Main function for sender
 def main():
         t = Sender()

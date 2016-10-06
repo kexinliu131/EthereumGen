@@ -28,7 +28,7 @@ class CommandCreator:
         source = self.remove_endl(source)
 
         res = []
-        res.append("var codeSource = " + source)
+        res.append("var codeSource = \'" + source + '\'')
         res.append("var codeCompiled = web3.eth.compile.solidity(codeSource)");
         res.append("var ethContract = web3.eth.contract(codeCompiled." + self.get_contract_name(source) + ".info.abiDefinition);")
 
@@ -44,7 +44,7 @@ class CommandCreator:
         create_instance_command += str(gas.gen_random_number())
         create_instance_command += "}, function(e, contract){if(!e) {if(!contract.address) {console.log(\"Contract transaction send: TransactionHash: \" + contract.transactionHash + \" waiting to be mined...\");} else {console.log(\"Contract mined! Address: \" + contract.address);console.log(contract);}}})"
         """
-        create_instance_command +=
+        create_instance_command += 
         create_instance_command += 
         """
         res.append(create_instance_command)
