@@ -1,4 +1,3 @@
-from Generator import *
 from EtherHis import *
 import string
 
