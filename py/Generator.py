@@ -7,12 +7,11 @@ import time
 
 user_address_mapping = {"user0":"\"0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\"", "user1":"\"0x5fb7b78c88c8629e3371f6150ae3394ec45e3d22\""}
 r = Receiver()
-r.start_listen()
 s = Sender()
 cc = CommandCreator()
 buff = {}
 count = 0
-
+    
 def instantiate_contract(var_name):
     #hard coded
     f = open("./Lottery_backup_1","r")
@@ -61,12 +60,15 @@ def gen_transactions(contract_name, th):
         mine_a_few_blocks()
 
 def main():
+
+    r.start_listen()
     
     thread.start_new_thread( start_receiving, (buff,) )
     time.sleep(3)
     send_and_get_response(None)
 
     send_and_get_response("personal.unlockAccount(eth.accounts[1],\"w123456\")")
+
     
     """
     while True:

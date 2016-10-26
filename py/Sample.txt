@@ -1,0 +1,21 @@
+# This is a comment
+#
+#
+#
+# This is a comment
+
+# definition of constants
+# left hand side of "=" must be "def variableName"
+# right hand side of "=" must be an expression that can be evaluated by python
+def varA = randint(0,4)
+
+state 1: 
+tr 
+tr 
+
+state 2: 
+tr 
+goto 1 
+# goto a state with probability:
+# goto 1, 0.4, 2, 0.6
+
