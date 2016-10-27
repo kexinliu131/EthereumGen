@@ -1,0 +1,75 @@
+contract Lottery{
+    
+    address owner;
+    
+    address[] buyers;
+    uint[] boughtNumbers;
+    
+    uint numBuyers;
+    address[] winners;
+    
+    function Lottery(){
+        owner = msg.sender;
+    }
+    
+    function buy(uint num){
+        if (num >= 5){
+            msg.sender.send(msg.value);
+        }
+        
+        else if (msg.value < 1000000000000000000){
+            msg.sender.send(msg.value);
+        }
+        
+        else{
+            if (msg.value > 1000000000000000000){
+                msg.sender.send(msg.value - 1000000000000000000);
+            }
+            
+            if (buyers.length == numBuyers){
+                buyers.length = buyers.length + 1;
+                boughtNumbers.length = boughtNumbers.length + 1;
+            }
+            
+            buyers[numBuyers] = msg.sender;
+            boughtNumbers[numBuyers++] = num;
+        }
+    }
+    
+    function finishRound(){
+        if (msg.sender!=owner){
+            return;
+        }
+        
+        else if (getBalance()<=1000000000000000000){
+            return;
+        }
+
+        else {
+            uint n = uint(block.blockhash(block.number-1))%5;
+            uint count = 0;
+            
+            for (uint i=0;i<numBuyers;i++){
+                if (boughtNumbers[i]==n){
+                    if (winners.length == count){
+                        winners.length = winners.length + 1;
+                    }
+                    winners[count++] = buyers[i];
+                }
+            }
+            
+            uint prize = ( getBalance() - 1 ether ) / count;
+            
+            for (i=0; i<count; i++){
+                winners[i].send(prize);
+            }
+            
+        }
+        
+        numBuyers = 0;
+    }
+    
+    function getBalance() returns (uint bal){
+        return this.balance;
+    }
+}

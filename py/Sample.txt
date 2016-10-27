@@ -6,12 +6,13 @@
 
 # definition of constants
 # def varName expression
-#def varA randint(0,4)
-def varA 1+1
+def varA IR(0_4)
+# def varA 1+1
 
 state 1 
 # tr sender receiver value gas repeat function params
-tr user1 contract 1000000000000000000 3000000 5 buy [IR(0_4)]
+#tr user1 contract 1000000000000000000 3000000 5 buy [IR(0_4)]
+tr user1 contract IR(1_1000000000000000000) 3000000 5 buy [IR(0_4)]
 tr user1 contract 1000000000000000000 3000000 5 buy [eval(varA)]
 
 state 2 
