@@ -5,17 +5,19 @@
 # This is a comment
 
 # definition of constants
-# left hand side of "=" must be "def variableName"
-# right hand side of "=" must be an expression that can be evaluated by python
-def varA = randint(0,4)
+# def varName expression
+#def varA randint(0,4)
+def varA 1+1
 
-state 1: 
-tr 
-tr 
+state 1 
+# tr sender receiver value gas repeat function params
+tr user1 contract 1000000000000000000 3000000 5 buy [IR(0_4)]
+tr user1 contract 1000000000000000000 3000000 5 buy [eval(varA)]
 
-state 2: 
-tr 
-goto 1 
+state 2 
+tr user0 contract 0 3000000 1 finishRound
+goto 1
+
 # goto a state with probability:
-# goto 1, 0.4, 2, 0.6
+# goto 1 0.4 2 0.6
 

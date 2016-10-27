@@ -7,8 +7,9 @@ import time
 
 user_address_mapping = {"user0":"\"0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\"", "user1":"\"0x5fb7b78c88c8629e3371f6150ae3394ec45e3d22\""}
 r = Receiver()
-s = Sender()
+print "1"
 cc = CommandCreator()
+print "2"
 buff = {}
 count = 0
     
@@ -60,36 +61,16 @@ def gen_transactions(contract_name, th):
         mine_a_few_blocks()
 
 def main():
-
+    print "main"
     r.start_listen()
-    
+    global s
+    s = Sender()
+    print "1"
     thread.start_new_thread( start_receiving, (buff,) )
     time.sleep(3)
     send_and_get_response(None)
-
+    print "2"
     send_and_get_response("personal.unlockAccount(eth.accounts[1],\"w123456\")")
-
-    
-    """
-    while True:
-        count_old = count
-        #msg = "eth.blockNumber\n"
-        msg = raw_input()
-        s.send(msg)
-        print "------message sent-------"
-        print msg
-        for i in range(0,20):
-            time.sleep(0.1)
-            if count > count_old:      
-                print "------message received---"  
-                print "buff size: "+ str(len(buff))
-                for j in range(buff_sz, len(buff)):
-                    print "-------------" + str(j)
-                    print buff[j]
-                break
-        time.sleep(2)
-    """
-
 
     #deploying contract
     """
@@ -124,7 +105,9 @@ def main():
 
     time.sleep(1)
     gen_transactions("lottery",foo())
-    
+
+    #allows the user to interact with geth
+    """
     while True:
         count_old = count
         #msg = "eth.blockNumber\n"
@@ -142,6 +125,8 @@ def main():
                     print buff[j]
                 break
         time.sleep(2)
+    """
+
     return
     
     
