@@ -42,7 +42,8 @@ class Branch:
         return self.true_br if self.assertion.isTrue() else self.false_br
     
 class State:
-    def __init__(self, name):
+    def __init__(self, name, num_repeat = 1):
+        self.repeat = num_repeat
         self.transactions = []
         self.name = name
         
@@ -50,16 +51,33 @@ class State:
         for h in self.transactions:
             if h.__class__ is not Transaction and h.__class__ is not EthAssert and h.__class__ is not Branch:
                 return False
+    def __str__(self):
+        state_str = "--------State: " + self.name
+        if self.repeat > 1:
+            state_str += "  repeat: " + str(self.repeat) + " "
+        state_str += "--------\n"
+
+        trans_str = "Transactions: \n"
+        trans_str += "\n".join(str(tr) for tr in self.transactions)
+        return state_str + trans_str
 
 class TransactionHistory:
     def __init__(self):
         self.history = []
+        self.edge = {}
     def isValid(self):
         return True
+    def __str__(self):
+        history_str = "History: \n" + "\n ".join( str(x) for x in self.history)
+        edge_str = "Edges: \n"
+        for x in self.edge.keys():
+            for y in self.edge[x].keys():
+                edge_str += x + " -> " + y + "  " + str(self.edge[x][y]) + " \n"
+        return "Transaction History: \n" + history_str + "\n" + edge_str
 
 class IntRange:
     def __init__(self,string):
-        self.strlist = str.split(string,"||")
+        self.strlist = str.split(string,"|")
         self.intlist = []
         for s in self.strlist:
             s = s.replace(" ","")
@@ -135,6 +153,10 @@ class Transaction:
         self.param = param
     def isValid(self):
         return True
+    def __str__(self):
+        from CommandCreator import *
+        cc = CommandCreator()
+        return cc.get_trans_command(self)
 
 def main():
     """
@@ -152,11 +174,20 @@ def main():
         print str(b.gen_random_number())
     """
 
+    """
     c = IntRange("1")
     print str(c)
 
     for i in range (0,10):
         print str(c.gen_random_number())
+    """
+
+    dic = {"a": {"b":"c"}, "d": {"d":"e"}}
+    th = TransactionHistory()
+    th.edge = dic
+    th.history.append(1)
+
+    print th
 
 if __name__=="__main__":
     main()
