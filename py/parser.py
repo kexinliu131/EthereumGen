@@ -9,6 +9,7 @@ class Parser:
     def __init__(self):
         self.var_table= {}
         self.nsp = NumericStringParser()
+        self.parsing_edge = False
         pass
 
     def run(self, filename):
@@ -17,12 +18,13 @@ class Parser:
     def parse(self, lines):
         th = TransactionHistory()
 
-        current_state = None
+        state_index = -1
         
         for i in range(0, len(lines)):
             global line_num
-            line_num = i
-            #print "parsing line: " + str(line_num)
+            line_num += 1
+            print "parsing line: " + str(line_num)
+
             line = lines[i]
             if len(line)==0 or line[0] == '#' or line[0] == '\n':
                 print "empty line or comment: " + str(line_num)
@@ -34,16 +36,30 @@ class Parser:
                 
             elif c == "state":
                 c, j = getNextToken(line, j)
-                if current_state is not None:
-                    th.history.append(current_state)
-                current_state = State(c)
+                s = State(c)
+                print "appending state to th"
+                th.history.append(s)
+                state_index += 1
+                c, j = getNextToken(line, j)
+                #todo: IR for number of repeats
+                if c is not None and c != "":
+                    th.history[state_index].repeat = int(c)
             elif c == "goto":
                 pass
             elif c == "tr":
-                self.parse_tr(line[j:])
+                th.history[state_index].transactions.append(self.parse_tr(line[j:]))
+            elif c == "endstate":
+                current_state = None
+            elif c == "edges":
+                self.parsing_edge = True
+            elif c == "endedge":
+                self.parsing_edge = False
+            elif self.parsing_edge:
+                print "parsing edge"
             else:
                 print "unrecognized command: " + str(line_num) 
-            
+
+        print th
     def read_file(self,filename):
         f = open(filename, 'r')
         l = list(f)
@@ -64,24 +80,46 @@ class Parser:
         tr_value = self.process_expression(c)
         if tr_value is None:
             tr_value = IntRange(c)
+
+        tr = Transaction(tr_from, tr_to, tr_value)
+        
         #gas
         c, j = getNextToken(line, j)
+        if c is None or c == "":
+            return tr
+
         tr_gas = self.process_expression(c)
         if tr_gas is None:
             tr_gas = IntRange(c)
+
+        tr.gas = tr_gas
+
         #repeat
         c, j = getNextToken(line, j)
+        if c is None or c == "":
+            return tr
         tr_repeat = self.process_expression(c)
         if tr_repeat is None:
             tr_repeat = IntRange(c)
+        tr.repeat = tr_repeat
+        print "repeat is " + str(tr.repeat)
+
         #function
         c, j = getNextToken(line, j)
-        tr_function = c
-
+        if c is None or c == "":
+            return tr
+        
+        tr.function = c
+        print "function is " + tr.function
+        
         #params
-        if tr_function is not None:
-            c, j = getNextToken(line, j)
-            pass
+        c, j = getNextToken(line, j)
+        if c is None or c == "":
+            return tr
+        tr.params = c
+        print "params are" + str(tr.params)
+
+        return tr
 
     def parse_goto(self,line):
         pass
@@ -159,6 +197,7 @@ def replace_var(string, dic):
     return string
 
 def main():
+    """
     dic = {"foo" : 123, "bar": 534.3, "baz" : -994, "foooa" : 223, "eebar":0}
     print dic
     string = "foo + baz ^ 2-eebar*foooa "
@@ -167,10 +206,10 @@ def main():
 
     nsp = NumericStringParser()
     print str(nsp.eval(string))
-
+    """
     p = Parser()
     p.run("Sample.txt")
-
+    
 def getNextToken(string, index):
     start = 0
     while True:
