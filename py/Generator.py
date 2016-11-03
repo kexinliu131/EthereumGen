@@ -135,37 +135,42 @@ def mine_a_few_blocks():
     block_num = get_block_number()
     if block_num == -1:
         return False
+    print "starting to mine using 1 thread"
     s.send("miner.start(1)")
     for i in range(0,100):
         time.sleep(5)
         if block_num < get_block_number():
+            print "stopping miner(s)"
             s.send("miner.stop()")
             send_and_get_response(None)
             return True
 
-def send_and_get_response(msg, sleep_time = 0.5):
+def send_and_get_response(msg, sleep_time = 0.5, print_output = True):
     count_old = count
 
     if msg is not None:
         s.send(msg)
-        print "------message sent-------count: " + str(count)
-        print msg
+        if print_output:
+            print "------message sent-------count: " + str(count)
+            print msg
 
     time.sleep(sleep_time)
     res = []
     for i in range(0,20):
         time.sleep(0.1)
         if count > count_old:      
-            print "------message received------"  
-            print "buff size: "+ str(len(buff))
+            if print_output:
+                print "------message received------"  
+                print "buff size: "+ str(len(buff))
             for j in range(count_old, count):
                 res.append(buff[j])
-                print(buff[j])
+                if print_output:
+                    print(buff[j])
         break
     return res
 
 def get_block_number():
-    res = send_and_get_response("eth.blockNumber")
+    res = send_and_get_response("eth.blockNumber",print_output = False)
     #print res
     for i in range (0, len(res)):
         try:
