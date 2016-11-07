@@ -67,6 +67,9 @@ class Parser:
         return l
 
     def parse_tr(self,line):
+
+        line = replace_var(line, self.var_table)
+        
         #from
         c, j = getNextToken(line, 0)
         tr_from = c
@@ -116,9 +119,16 @@ class Parser:
         c, j = getNextToken(line, j)
         if c is None or c == "":
             return tr
-        tr.params = c
-        print "params are" + str(tr.params)
+        tr.param = []
+        c = c.strip()
+        if (len(c) > 2 and c[0] == '[' and c[len(c)-1] == ']'):
+            param_strs = (c[1:-1]).split(',')
+            for p in param_strs:
+                tr.param.append(str(self.eval_expression(p.strip())))
+        else:
+            tr.param.append(c)
 
+        print "params are" + str(tr.param)
         return tr
 
     def parse_goto(self,line):
@@ -169,6 +179,8 @@ class Parser:
                     bracket_num += 1
                 elif string[j] == ')':
                     bracket_num -= 1
+                j+=1
+            print "eval_expression " + string
             val = self.nsp.eval(string[i+1:j].strip())
             if val - int(val) == 0:
                 val = int(val)

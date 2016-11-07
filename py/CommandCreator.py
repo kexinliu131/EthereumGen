@@ -1,6 +1,8 @@
 from EtherHis import *
 import string
 
+user_address_mapping = {"user0":"\"0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\"", "user1":"\"0x5fb7b78c88c8629e3371f6150ae3394ec45e3d22\""}
+
 class CommandCreator:
     def __init__(self):
         return
@@ -13,13 +15,30 @@ class CommandCreator:
         else:
             return '\'0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\''
 
-    def get_trans_command(self,transaction):
+    def get_trans_command(self, tr, contract_name = "contractInstance" ):
+        print "get_trans_command  " + tr.to_account
         res = ""
-        if (transaction.from_account is not 'any_contract' and transaction.to_account is not 'contract'):
-            res += "eth.sendTransaction({from:" + self.get_account_str(transaction.from_account) \
-                   + ", to:" + self.get_account_str(transaction.to_account) + ", value: " + str(transaction.value.gen_random_number()) + "})"
+        #normal transaction
+        if (tr.to_account != 'contract'):
+            res += "eth.sendTransaction({from:" + self.get_account_str(tr.from_account) \
+                + ", to:" + self.get_account_str(tr.to_account) + ", value: " + str(tr.value.gen_random_number()) + "})"
+        #transaction to this contract
         else:
-            #to be done
+            if contract_name == "":
+                return "Please specify contract name!"
+            res += contract_name + "."
+
+            if tr.function != "":
+                res += tr.function + "."
+            res += "sendTransaction("
+            print "param length: " + str(len(tr.param))
+            for j in range (0, len(tr.param)):
+                if isinstance(tr.param[j],IntRange):
+                    res += str(tr.param[j].gen_random_number())
+                else:
+                    res += str(tr.param[j])
+                res += ","
+            res += "{from: " + user_address_mapping[tr.from_account] + ", value : " + str(tr.value.gen_random_number()) + ", gas : " + str(tr.gas.gen_random_number()) + "})"            
             pass
         return res 
 

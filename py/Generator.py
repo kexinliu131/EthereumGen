@@ -5,7 +5,7 @@ from CommandCreator import *
 import thread
 import time
 
-user_address_mapping = {"user0":"\"0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\"", "user1":"\"0x5fb7b78c88c8629e3371f6150ae3394ec45e3d22\""}
+
 r = Receiver()
 print "1"
 cc = CommandCreator()
@@ -38,26 +38,10 @@ def gen_transactions(contract_name, th):
 
     for t in state.transactions:
         for i in range (0, t.repeat.gen_random_number()):
-            if t.to_account == "contract":
-                tran_str = contract_name + "."
-                if t.function != "":
-                    tran_str += t.function + "."
-                tran_str += "sendTransaction("
-                for j in range (0, len(t.param)):  
-                    if isinstance(t.param[j],IntRange):
-                        tran_str += str(t.param[j].gen_random_number())
-                    else:
-                        #todo
-                        pass
-                    tran_str += ","
-                tran_str += "{from: " + user_address_mapping[t.from_account] + ", value : " + str(t.value.gen_random_number()) + ", gas : " + str(t.gas.gen_random_number()) + "})"
-                
-                send_and_get_response(tran_str)
-                time.sleep(0.5)
-            else:
-                #todo
-                pass
-                
+            tran_str = cc.get_trans_command(t)
+            send_and_get_response(tran_str)
+            time.sleep(0.5)
+
         mine_a_few_blocks()
 
 def main():
