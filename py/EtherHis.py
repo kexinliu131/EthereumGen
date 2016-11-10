@@ -72,6 +72,8 @@ class TransactionHistory:
         edge_str = "Edges: \n"
         for x in self.edge.keys():
             for y in self.edge[x].keys():
+                if y == "edge_probability_sum":
+                    continue
                 edge_str += x + " -> " + y + "  " + str(self.edge[x][y]) + " \n"
         return "Transaction History: \n" + history_str + "\n" + edge_str
 

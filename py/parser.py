@@ -52,10 +52,31 @@ class Parser:
                 current_state = None
             elif c == "edges":
                 self.parsing_edge = True
-            elif c == "endedge":
+            elif c == "endedges":
                 self.parsing_edge = False
             elif self.parsing_edge:
-                print "parsing edge"
+                vertex1 = c
+                if vertex1 in th.edge.keys():
+                    raise Exception("Duplicate Defination")
+                th.edge[vertex1] = {}
+                th.edge[vertex1]["edge_probability_sum"] = 0
+
+                while True:
+                    c, j = getNextToken(line, j)
+                    if c == '' or c is None:
+                        break
+                    vertex2 = c
+                    c, j = getNextToken(line, j)
+                    if c == '' or c is None:
+                        th.edge[vertex1][vertex2] = 1 - th.edge[vertex1]["edge_probability_sum"]
+                        th.edge[vertex1]["edge_probability_sum"] += th.edge[vertex1][vertex2]
+                        break
+
+                    th.edge[vertex1][vertex2] = float(c)
+                    th.edge[vertex1]["edge_probability_sum"] += th.edge[vertex1][vertex2]
+                    if th.edge[vertex1]["edge_probability_sum"] > 1:
+                        raise Exception("Probability bigger than 1")
+
             else:
                 print "unrecognized command: " + str(line_num) 
 
@@ -181,7 +202,7 @@ class Parser:
                     bracket_num -= 1
                 j+=1
             print "eval_expression " + string
-            val = self.nsp.eval(string[i+1:j].strip())
+            val = self.nsp.eval(string[i+5:j-1].strip())
             if val - int(val) == 0:
                 val = int(val)
             string = string[:i] + str(val) + string[j+1:]
@@ -219,9 +240,12 @@ def main():
     nsp = NumericStringParser()
     print str(nsp.eval(string))
     """
+    """
     p = Parser()
     p.run("Sample.txt")
-    
+    """
+    p = Parser()
+    print p.eval_expression("eval(1+1)")
 def getNextToken(string, index):
     start = 0
     while True:
