@@ -1,12 +1,15 @@
 from EtherHis import *
 import string
 
-user_address_mapping = {"user0":"\"0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\"", "user1":"\"0x5fb7b78c88c8629e3371f6150ae3394ec45e3d22\""}
+user_address_mapping = {"user0":"\"0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\"", "user1":"\"0xf7262322f3d86d15f79f8b0e88d78901db89a334\""}
 
 class CommandCreator:
     def __init__(self):
         return
 
+    def get_transaction_receipt(self, str):
+        return "eth.getTransactionReceipt(" + str + ")"
+    
     def get_account_str(self, account):
         # to be completed
         if account is 'user0':
@@ -39,8 +42,7 @@ class CommandCreator:
                     res += str(tr.param[j])
                 res += ","
             res += "{from: " + user_address_mapping[tr.from_account] + ", value : " + str(tr.value.gen_random_number()) + ", gas : " + str(tr.gas.gen_random_number()) + "})"            
-            pass
-        return res 
+        return res
 
     def get_deploy_commands(self, source, params, gas = IntRange("300000")):
         source = self.remove_endl(source)

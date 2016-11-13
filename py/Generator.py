@@ -9,10 +9,16 @@ import time
 r = Receiver()
 print "1"
 cc = CommandCreator()
-print "2"
 buff = {}
 count = 0
-    
+
+#parallel lists
+tr_address_log = []
+tr_command_log = []
+
+#info after mining
+mine_log = []
+
 def instantiate_contract(var_name):
     #hard coded
     f = open("./Lottery_backup_1","r")
@@ -22,7 +28,7 @@ def instantiate_contract(var_name):
     send_and_get_response("var contractSource = \"" + cc.remove_endl(source) + "\"")
     send_and_get_response("var contractCompiled = web3.eth.compile.solidity(contractSource)")
     send_and_get_response("var " + var_name + " = eth.contract(contractCompiled.Lottery.info.abiDefinition).at(\"0x6055fa5b0d5404854bb96ebf41f62934d46b9b39\")")
-    send_and_get_response(None)    
+    send_and_get_response(None)
     return True
 
 def start_receiving(buff):
@@ -33,27 +39,37 @@ def start_receiving(buff):
         count += 1
         buff.pop(count-1000,None)
 
-def gen_transactions(contract_name, th):
-    state = th.history[0]
+def get_mine_log_entry():
+    #hard coded, to be completed
+    l = "contract balance: "
+    res = send_and_get_response("eth.getBalance(\"0x6055fa5b0d5404854bb96ebf41f62934d46b9b39\")")
+    for line in res:
+        l += line
+    return l
 
+def gen_transactions(th, contract_name = "contractInstance"):
+    state = th.history[0]
+    global tr_address_log
+    global tr_command_log
+    
     for t in state.transactions:
         for i in range (0, t.repeat.gen_random_number()):
-            tran_str = cc.get_trans_command(t)
-            send_and_get_response(tran_str)
+            tran_str = cc.get_trans_command(t, contract_name)
+            res = send_and_get_response(tran_str)
+            tr_address_log.append(get_address_from_res(res))
+            tr_command_log.append(tran_str)
             time.sleep(0.5)
-
-        mine_a_few_blocks()
-
+    mine_a_few_blocks()
+    global mine_log
+    mine_log.append([len(tr_address_log)-1, get_mine_log_entry()])
+    
 def main():
-    print "main"
     r.start_listen()
     global s
     s = Sender()
-    print "1"
     thread.start_new_thread( start_receiving, (buff,) )
     time.sleep(3)
     send_and_get_response(None)
-    print "2"
     send_and_get_response("personal.unlockAccount(eth.accounts[1],\"w123456\")")
 
     #deploying contract
@@ -85,13 +101,36 @@ def main():
 
     print(str(get_block_number()))
     
-    instantiate_contract("lottery")
+    instantiate_contract("contractInstance")
 
     time.sleep(1)
-    gen_transactions("lottery",foo())
+    gen_transactions(foo())
 
+    global tr_address_log
+    global tr_command_log
+    global mine_log
+    
+    f = open("./log",'a')
+    f.write("Transaction Log:")
+    for i in range (0,len(tr_address_log)):
+        f.write("-" * 40 + "\n")
+        f.write("Transaction Number: " + str(i+1) + "    " + tr_address_log[i] + "\n")
+        f.write(tr_command_log[i])
+        receipt = send_and_get_response(cc.get_transaction_receipt(tr_address_log[i]),print_output = False)
+        f.write("\n\nreceipt:")
+        for line in receipt:
+            f.write(line)
+        f.write("\n\n")
+        if (len(mine_log)>0 and mine_log[0][0] == i):
+            f.write("-" * 40 + "\n")
+            f.write("Contract Info After Mining\n")
+            f.write(mine_log[0][1])
+            mine_log.pop(0)
+    f.close()
+
+    print "\nFinished generating transactions. Type to interact with geth console."
+    
     #allows the user to interact with geth
-    """
     while True:
         count_old = count
         #msg = "eth.blockNumber\n"
@@ -105,12 +144,11 @@ def main():
                 print "------message received---"
                 print "buff size: "+ str(len(buff))
                 for j in range(count_old, count):
-                    print "-------------" + str(j)
+                    #print "-------------" + str(j)
                     print buff[j]
                 break
         time.sleep(2)
-    """
-
+    
     return
     
     
@@ -150,7 +188,8 @@ def send_and_get_response(msg, sleep_time = 0.5, print_output = True):
                 res.append(buff[j])
                 if print_output:
                     print(buff[j])
-        break
+            break
+
     return res
 
 def get_block_number():
@@ -162,6 +201,19 @@ def get_block_number():
         except:
             pass
     return -1
+
+def get_address_from_res(res, length = 64):
+    if length < 4:
+        return None
+    for s in res:
+        s2 = s.strip(" \n")
+        if len(s2) != length + 4:
+            continue
+        if s2[0:3] != "\"0x" or s2[-1] != "\"":
+            continue
+        return s2
+    return None
+
 
 def foo():
     th = TransactionHistory()
