@@ -7,7 +7,7 @@ import time
 
 
 r = Receiver()
-print "1"
+#print "1"
 cc = CommandCreator()
 buff = {}
 count = 0
@@ -21,13 +21,13 @@ mine_log = []
 
 def instantiate_contract(var_name):
     #hard coded
-    f = open("./Lottery_backup_1","r")
+    f = open("./Lottery_new","r")
     source = ""
     for line in f:
         source += line
     send_and_get_response("var contractSource = \"" + cc.remove_endl(source) + "\"")
     send_and_get_response("var contractCompiled = web3.eth.compile.solidity(contractSource)")
-    send_and_get_response("var " + var_name + " = eth.contract(contractCompiled.Lottery.info.abiDefinition).at(\"0x6055fa5b0d5404854bb96ebf41f62934d46b9b39\")")
+    send_and_get_response("var " + var_name + " = eth.contract(contractCompiled.Lottery.info.abiDefinition).at(\"0xd3c0930fe752d90f81ca575670927793d78592cd\")")
     send_and_get_response(None)
     return True
 
@@ -42,7 +42,7 @@ def start_receiving(buff):
 def get_mine_log_entry():
     #hard coded, to be completed
     l = "contract balance: "
-    res = send_and_get_response("eth.getBalance(\"0x6055fa5b0d5404854bb96ebf41f62934d46b9b39\")")
+    res = send_and_get_response("eth.getBalance(\"0xd3c0930fe752d90f81ca575670927793d78592cd\")")
     for line in res:
         l += line
     return l
@@ -73,34 +73,47 @@ def main():
     send_and_get_response("personal.unlockAccount(eth.accounts[1],\"w123456\")")
 
     #deploying contract
-    """
-    f = open("./Lottery_backup_1","r")
+    
+    f = open("./Lottery_new","r")
     source = ""
     for line in f:
         source += line
-    
+
+    """
     commands = cc.get_deploy_commands(cc.remove_endl(source),[])
     count_old = count
     s.send("admin.nodeInfo.enode");
+
+    res = []
+    
     for command in commands:
-        s.send(command)
+        res = send_and_get_response(command,print_output=False)
         print "------message sent-------"
         print command
         for i in range(0, 20):
             time.sleep(0.1)
             if count > count_old:
-                print "------message received---"  
+                #print "------message received---"
                 print "buff size: "+ str(len(buff))
-                for j in range(buff_sz, len(buff)):
-                    print "-------------" + str(j)
+                for j in range(count_old, len(buff)):
+                    #print "-------------" + str(j)
                     print buff[j]
                 count_old = count
                 break
         time.sleep(2)
-    """
 
+    tran_address = get_address_from_res(res)
+
+    if tran_address is not None:
+        print tran_address
+        mine_a_few_blocks()
+        res = send_and_get_response(cc.get_transaction_receipt(tran_address))
+        print str(res)
+
+
+    """
     print(str(get_block_number()))
-    
+
     instantiate_contract("contractInstance")
 
     time.sleep(1)
@@ -129,7 +142,7 @@ def main():
     f.close()
 
     print "\nFinished generating transactions. Type to interact with geth console."
-    
+
     #allows the user to interact with geth
     while True:
         count_old = count
@@ -148,7 +161,7 @@ def main():
                     print buff[j]
                 break
         time.sleep(2)
-    
+
     return
     
     
@@ -206,21 +219,52 @@ def get_address_from_res(res, length = 64):
     if length < 4:
         return None
     for s in res:
-        s2 = s.strip(" \n")
-        if len(s2) != length + 4:
-            continue
-        if s2[0:3] != "\"0x" or s2[-1] != "\"":
-            continue
-        return s2
+        index = s.find("TransactionHash:")
+        if  index == -1:
+            s2 = s.strip(" \n")
+            if len(s2) != length + 4:
+                continue
+            if s2[0:3] != "\"0x" or s2[-1] != "\"":
+                continue
+            return s2
+        else:
+            return "\"" + s[index+17:index+83] + "\""
+
     return None
 
-
+"""
 def foo():
     th = TransactionHistory()
     st = State("init")
     st.transactions.append(Transaction("user1", "contract", IntRange("1000000000000000000"), IntRange("3000000"), IntRange("5"), "buy" , [IntRange("0_4")]))
     st.transactions.append(Transaction("user0", "contract", IntRange("0"), IntRange("3000000"), IntRange("1"), "finishRound"))
     
+    th.history.append(st)
+    return th
+"""
+
+
+def foo():
+    th = TransactionHistory()
+    st = State("init")
+    st.transactions.append(
+        Transaction("user1", "contract", IntRange("1000000000000000000"), IntRange("30000000"), IntRange("1"), "buy",
+                    [IntRange("0")]))
+    st.transactions.append(
+        Transaction("user1", "contract", IntRange("1000000000000000000"), IntRange("30000000"), IntRange("1"), "buy",
+                    [IntRange("1")]))
+    st.transactions.append(
+        Transaction("user1", "contract", IntRange("1000000000000000000"), IntRange("30000000"), IntRange("1"), "buy",
+                    [IntRange("2")]))
+    st.transactions.append(
+        Transaction("user1", "contract", IntRange("1000000000000000000"), IntRange("30000000"), IntRange("1"), "buy",
+                    [IntRange("3")]))
+    st.transactions.append(
+        Transaction("user1", "contract", IntRange("1000000000000000000"), IntRange("30000000"), IntRange("1"), "buy",
+                    [IntRange("4")]))
+    st.transactions.append(
+        Transaction("user0", "contract", IntRange("0"), IntRange("3000000"), IntRange("1"), "finishRound"))
+
     th.history.append(st)
     return th
 

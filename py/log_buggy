@@ -1,0 +1,312 @@
+Transaction Log:----------------------------------------
+Transaction Number: 1    "0x62c10d1d33be64cd2a277457addd9ea4028ffb1c1356459ff5cc3aac801b319c"
+contractInstance.buy.sendTransaction(0,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 3000000})
+
+receipt:{
+  blockHash: "0xe7d2c0486672c16ac69cc87e820bba67b7bb728644b1d4a688b233aff47d9a95",
+  blockNumber: 278,
+  contractAddress: null,
+  cumulativeGasUsed: 3021691,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 3000000,
+  logs: [],
+  root: "3eb783b5248e50ff81583e6a344a95bafa529a2953bc72eb89ee560cc910f91a",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0x62c10d1d33be64cd2a277457addd9ea4028ffb1c1356459ff5cc3aac801b319c",
+  transactionIndex: 1
+}
+
+
+----------------------------------------
+Transaction Number: 2    "0xbdddb690d57abe2c7ed3831561c0a50de5f27406e441089be25f20f9c9d30dfb"
+contractInstance.buy.sendTransaction(1,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 3000000})
+
+receipt:{
+  blockHash: "0xe7d2c0486672c16ac69cc87e820bba67b7bb728644b1d4a688b233aff47d9a95",
+  blockNumber: 278,
+  contractAddress: null,
+  cumulativeGasUsed: 6021691,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 3000000,
+  logs: [],
+  root: "b8b768e9c1f6579e52637feef76a93d72288bc05743c9ed3aef141d9c97ddcae",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0xbdddb690d57abe2c7ed3831561c0a50de5f27406e441089be25f20f9c9d30dfb",
+  transactionIndex: 2
+}
+
+
+----------------------------------------
+Transaction Number: 3    "0x3f801d28d2e4ca4ba756b2d14d928bf52578b6379ef52640721aabbd68d1c108"
+contractInstance.buy.sendTransaction(2,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 3000000})
+
+receipt:{
+  blockHash: "0xe7d2c0486672c16ac69cc87e820bba67b7bb728644b1d4a688b233aff47d9a95",
+  blockNumber: 278,
+  contractAddress: null,
+  cumulativeGasUsed: 9021691,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 3000000,
+  logs: [],
+  root: "b40be54605ef35d69af1ba06a3bc00fb4f27df669b458f152d28a729ba3f152c",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0x3f801d28d2e4ca4ba756b2d14d928bf52578b6379ef52640721aabbd68d1c108",
+  transactionIndex: 3
+}
+
+
+----------------------------------------
+Transaction Number: 4    "0x3d5e17a902806a5ec83c05094ea745f0a4fd03cb83541f96f5af2ff98c84bcce"
+contractInstance.buy.sendTransaction(3,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 3000000})
+
+receipt:{
+  blockHash: "0xe7d2c0486672c16ac69cc87e820bba67b7bb728644b1d4a688b233aff47d9a95",
+  blockNumber: 278,
+  contractAddress: null,
+  cumulativeGasUsed: 12021691,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 3000000,
+  logs: [],
+  root: "851829b1c3f445a7cadd72e3b8488d0f05e2674d7e60a7eb267f50ffb212b752",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0x3d5e17a902806a5ec83c05094ea745f0a4fd03cb83541f96f5af2ff98c84bcce",
+  transactionIndex: 4
+}
+
+
+----------------------------------------
+Transaction Number: 5    "0xc58512a25be1326693aa1d39f7a18d0a5cb85dafe6f5f7fcc75cf664f4b3ccc1"
+contractInstance.buy.sendTransaction(4,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 3000000})
+
+receipt:{
+  blockHash: "0xe7d2c0486672c16ac69cc87e820bba67b7bb728644b1d4a688b233aff47d9a95",
+  blockNumber: 278,
+  contractAddress: null,
+  cumulativeGasUsed: 15021691,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 3000000,
+  logs: [],
+  root: "dbaa432b0aebababb344c58757b12617600c6f30a5d687fc393b4e1ce3de9c65",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0xc58512a25be1326693aa1d39f7a18d0a5cb85dafe6f5f7fcc75cf664f4b3ccc1",
+  transactionIndex: 5
+}
+
+----------------------------------------
+Transaction Number: 6    "0xf623d05b593516ba33b957161c7f2768007ac02ac836e8c1e62b3e9f97dbafd0"
+contractInstance.finishRound.sendTransaction({from: "0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14", value : 0, gas : 3000000})
+
+receipt:{
+  blockHash: "0xe7d2c0486672c16ac69cc87e820bba67b7bb728644b1d4a688b233aff47d9a95",
+  blockNumber: 278,
+  contractAddress: null,
+  cumulativeGasUsed: 21691,
+  from: "0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14",
+  gasUsed: 21691,
+  logs: [],
+  root: "18f7331a044239c1d1133d450dc27bbd4a34ad7fbadca2e323addf691963e9d2",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0xf623d05b593516ba33b957161c7f2768007ac02ac836e8c1e62b3e9f97dbafd0",
+  transactionIndex: 0
+}
+
+
+----------------------------------------
+Contract Info After Mining
+contract balance: 0
+Transaction Log:----------------------------------------
+Transaction Number: 1    "0xdff24124a4c3e630be052b506db12191367945f3ec672ac71e5bf2fd4b33e188"
+contractInstance.buy.sendTransaction(0,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 3000000})
+
+receipt:{
+  blockHash: "0xf95a8cd2db586881b41dc2e50e2e2889b597be522f0748c371aaa1ceea6d53d0",
+  blockNumber: 279,
+  contractAddress: null,
+  cumulativeGasUsed: 3000000,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 3000000,
+  logs: [],
+  root: "3a1ad4b0007e85a28e858ff619314ddf9ab1050a13abc71aa0837e3de520ea32",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0xdff24124a4c3e630be052b506db12191367945f3ec672ac71e5bf2fd4b33e188",
+  transactionIndex: 0
+}
+
+
+----------------------------------------
+Transaction Number: 2    "0x7fd0395dd6c0583a3d197f0c6e80652b573566d8784d4fab685c4a024045fa19"
+contractInstance.buy.sendTransaction(1,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 3000000})
+
+receipt:{
+  blockHash: "0xf95a8cd2db586881b41dc2e50e2e2889b597be522f0748c371aaa1ceea6d53d0",
+  blockNumber: 279,
+  contractAddress: null,
+  cumulativeGasUsed: 6000000,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 3000000,
+  logs: [],
+  root: "0e54152b8e4c25cc555a2b24c8155b12829b0341079839131e7af04b7819e8a2",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0x7fd0395dd6c0583a3d197f0c6e80652b573566d8784d4fab685c4a024045fa19",
+  transactionIndex: 1
+}
+
+
+----------------------------------------
+Transaction Number: 3    "0x688eca0004485e18975402350efa5647ecb4a9ac537f4b4b863a0c4596a6971f"
+contractInstance.buy.sendTransaction(2,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 3000000})
+
+receipt:{
+  blockHash: "0xf95a8cd2db586881b41dc2e50e2e2889b597be522f0748c371aaa1ceea6d53d0",
+  blockNumber: 279,
+  contractAddress: null,
+  cumulativeGasUsed: 9000000,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 3000000,
+  logs: [],
+  root: "b4a4723b0f90aefc0ca0f447face22711b4f7ceb7abe1d3f16f10b8fad954b3e",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0x688eca0004485e18975402350efa5647ecb4a9ac537f4b4b863a0c4596a6971f",
+  transactionIndex: 2
+}
+
+
+----------------------------------------
+Transaction Number: 4    "0xdeaafe1a0fa9a6b91ac3eb401c14cf775cb7b9522ac320d111aa96a02faa8897"
+contractInstance.buy.sendTransaction(3,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 3000000})
+
+receipt:{
+  blockHash: "0xf95a8cd2db586881b41dc2e50e2e2889b597be522f0748c371aaa1ceea6d53d0",
+  blockNumber: 279,
+  contractAddress: null,
+  cumulativeGasUsed: 12000000,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 3000000,
+  logs: [],
+  root: "3625946403f45993ba2234a22038d3da4ec9e777edf81de18eb92e9f60d7b80f",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0xdeaafe1a0fa9a6b91ac3eb401c14cf775cb7b9522ac320d111aa96a02faa8897",
+  transactionIndex: 3
+}
+
+
+----------------------------------------
+Transaction Number: 5    "0x4050831db7192e126515e546e49771ed81b7a2216f634d9413f6d6cf06c50ee6"
+contractInstance.buy.sendTransaction(4,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 3000000})
+
+receipt:{
+  blockHash: "0xf95a8cd2db586881b41dc2e50e2e2889b597be522f0748c371aaa1ceea6d53d0",
+  blockNumber: 279,
+  contractAddress: null,
+  cumulativeGasUsed: 15000000,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 3000000,
+  logs: [],
+  root: "bea3e9b02c728a80383ddddbdb332419ae74e68304638e888018697e73e12dd3",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0x4050831db7192e126515e546e49771ed81b7a2216f634d9413f6d6cf06c50ee6",
+  transactionIndex: 4
+}
+
+
+----------------------------------------
+Contract Info After Mining
+contract balance: 0
+Transaction Log:----------------------------------------
+Transaction Number: 1    "0xafa224c1bbd406d02d397d841cbbdbdbaafc32494a7629d47b9124d69774dece"
+contractInstance.buy.sendTransaction(0,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 30000000})
+
+receipt:{
+  blockHash: "0xbe3c01d76193126580634be806e62911d184a7272ba6d6f1b00109a41cc0261e",
+  blockNumber: 281,
+  contractAddress: null,
+  cumulativeGasUsed: 30000000,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 30000000,
+  logs: [],
+  root: "c70a2d53b2e77138fba90ad310853e490b03e9225cabaf647f4907979e993cbe",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0xafa224c1bbd406d02d397d841cbbdbdbaafc32494a7629d47b9124d69774dece",
+  transactionIndex: 0
+}
+
+
+----------------------------------------
+Transaction Number: 2    "0xbee3789ca20a0cbd75ed1014288deb8c06b5570241dc0540a8d5de9e941bec37"
+contractInstance.buy.sendTransaction(1,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 30000000})
+
+receipt:{
+  blockHash: "0xbe3c01d76193126580634be806e62911d184a7272ba6d6f1b00109a41cc0261e",
+  blockNumber: 281,
+  contractAddress: null,
+  cumulativeGasUsed: 60000000,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 30000000,
+  logs: [],
+  root: "6d22e5b4d378c29ecd6559584320c00b43f7eafba58af97165dfc088009e2a63",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0xbee3789ca20a0cbd75ed1014288deb8c06b5570241dc0540a8d5de9e941bec37",
+  transactionIndex: 1
+}
+
+
+----------------------------------------
+Transaction Number: 3    "0x8ee3ccb34a2b0f69946c27fee15b96340001115305958bc84d3009c497196d9d"
+contractInstance.buy.sendTransaction(2,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 30000000})
+
+receipt:{
+  blockHash: "0xbe3c01d76193126580634be806e62911d184a7272ba6d6f1b00109a41cc0261e",
+  blockNumber: 281,
+  contractAddress: null,
+  cumulativeGasUsed: 90000000,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 30000000,
+  logs: [],
+  root: "63653b72b65f58819bf9f707992c1ecb21e96e47813cee97d8346b50bb57ae65",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0x8ee3ccb34a2b0f69946c27fee15b96340001115305958bc84d3009c497196d9d",
+  transactionIndex: 2
+}
+
+
+----------------------------------------
+Transaction Number: 4    "0x2c1e15176157548ddd95fd2c062f703fca0bf9a4853999729626b8a901c94db5"
+contractInstance.buy.sendTransaction(3,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 30000000})
+
+receipt:{
+  blockHash: "0x5b4696d09ab2de8a92964b0498477d86a64df58905403adb1149cb2160352e26",
+  blockNumber: 282,
+  contractAddress: null,
+  cumulativeGasUsed: 30000000,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 30000000,
+  logs: [],
+  root: "bb6986cb0b4aa5490e0074e396a9b91ae9ef0261c1f6e940a853266dbd02c84f",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0x2c1e15176157548ddd95fd2c062f703fca0bf9a4853999729626b8a901c94db5",
+  transactionIndex: 0
+}
+
+
+----------------------------------------
+Transaction Number: 5    "0x45b4deb504fd9476eadfb5017af1d8796f4b5f0b3269f17fbf430ef53049e702"
+contractInstance.buy.sendTransaction(4,{from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334", value : 1000000000000000000, gas : 30000000})
+
+receipt:{
+  blockHash: "0x5b4696d09ab2de8a92964b0498477d86a64df58905403adb1149cb2160352e26",
+  blockNumber: 282,
+  contractAddress: null,
+  cumulativeGasUsed: 60000000,
+  from: "0xf7262322f3d86d15f79f8b0e88d78901db89a334",
+  gasUsed: 30000000,
+  logs: [],
+  root: "9853fe612e7ff969dd8a7a17fde2e650021270049466708535fbe10eea5a0881",
+  to: "0xcd71bd673f26c1b8041b9be50b4d3a0a710d4aa8",
+  transactionHash: "0x45b4deb504fd9476eadfb5017af1d8796f4b5f0b3269f17fbf430ef53049e702",
+  transactionIndex: 1
+}
+
+
+----------------------------------------
+Contract Info After Mining
+contract balance: 0

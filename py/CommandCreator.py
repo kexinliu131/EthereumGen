@@ -44,7 +44,7 @@ class CommandCreator:
             res += "{from: " + user_address_mapping[tr.from_account] + ", value : " + str(tr.value.gen_random_number()) + ", gas : " + str(tr.gas.gen_random_number()) + "})"            
         return res
 
-    def get_deploy_commands(self, source, params, gas = IntRange("300000")):
+    def get_deploy_commands(self, source, params, gas = IntRange("3000000")):
         source = self.remove_endl(source)
 
         res = []
@@ -62,11 +62,12 @@ class CommandCreator:
         create_instance_command += ", data: "
         create_instance_command += "codeCompiled." + self.get_contract_name(source) + ".code, gas: "
         create_instance_command += str(gas.gen_random_number())
+
+
         create_instance_command += "}, function(e, contract){if(!e) {if(!contract.address) {console.log(\"Contract transaction send: TransactionHash: \" + contract.transactionHash + \" waiting to be mined...\");} else {console.log(\"Contract mined! Address: \" + contract.address);console.log(contract);}}})"
-        """
-        create_instance_command += 
-        create_instance_command += 
-        """
+
+        #create_instance_command += "})"
+
         res.append(create_instance_command)
         return res
 
