@@ -1,7 +1,13 @@
 from EtherHis import *
 import string
 
-user_address_mapping = {"user0":"\"0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\"", "user1":"\"0xf7262322f3d86d15f79f8b0e88d78901db89a334\""}
+user_address_mapping = {"bank":"\"0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\"",
+                        "user0":"\"0xf7262322f3d86d15f79f8b0e88d78901db89a334\"",
+                        "user1":"\"0x1c85b5bef9ffa436781148aef87e5f0a944281e7\"",
+                        "user2":"\"0xe152a607ce15935664cd4071c8c35763c807613e\"",
+                        "user3":"\"0x927364ad19dc41188c72a2d619185abf0846321f\"",
+                        "user4":"\"0x8692d2052994ed411e236b659dd0c463876283d6\"",
+                        "user5":"\"0x18e676fb386e879ad4af71b34c8f012b6573f0ea\"",}
 
 class CommandCreator:
     def __init__(self):
@@ -12,11 +18,7 @@ class CommandCreator:
     
     def get_account_str(self, account):
         # to be completed
-        if account is 'user0':
-            print "user0"
-            return '\'0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\''
-        else:
-            return '\'0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\''
+        return user_address_mapping[account]
 
     def get_trans_command(self, tr, contract_name = "contractInstance" ):
         print "get_trans_command  " + tr.to_account
@@ -94,7 +96,7 @@ class CommandCreator:
 
 def main():
     cc = CommandCreator()
-    tran = Transaction("user0","user1",IntRange("1000000_2000000"))
+    #tran = Transaction("user0","user1",IntRange("1000000_2000000"))
     #print cc.get_trans_command(tran)
     #print cc.get_contract_name("contract      HelloWOrld    {blahblahblah}")
 

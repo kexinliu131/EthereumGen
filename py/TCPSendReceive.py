@@ -5,7 +5,7 @@ import socket
 """
 in order to use this sender:
 
-nc 127.0.0.1 8881 | command
+nc -l 8881 | command
 """
 
 class Sender:

@@ -1,8 +1,6 @@
 from EtherHis import *
 from NumericStringParser import NumericStringParser
 
-print "parser"
-
 line_num = 0
 
 class Parser:

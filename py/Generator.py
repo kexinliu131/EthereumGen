@@ -1,5 +1,4 @@
-from EtherHis import *
-from GethRPC import *
+from parser import *
 from TCPSendReceive import *
 from CommandCreator import *
 import thread
@@ -63,6 +62,46 @@ def gen_transactions(th, contract_name = "contractInstance"):
     global mine_log
     mine_log.append([len(tr_address_log)-1, get_mine_log_entry()])
     
+def main2():
+    r.start_listen()
+    global s
+    s = Sender()
+    thread.start_new_thread( start_receiving, (buff,) )
+    time.sleep(3)
+    send_and_get_response(None)
+    send_and_get_response("personal.unlockAccount(eth.accounts[1],\"w123456\")")
+    send_and_get_response("personal.unlockAccount(eth.accounts[2],\"w123456\")")
+    send_and_get_response("personal.unlockAccount(eth.accounts[3],\"w123456\")")
+    send_and_get_response("personal.unlockAccount(eth.accounts[4],\"w123456\")")
+    send_and_get_response("personal.unlockAccount(eth.accounts[5],\"w123456\")")
+    send_and_get_response("personal.unlockAccount(eth.accounts[6],\"w123456\")")
+
+    p = Parser()
+    th = p.parse(p.read_file("Sample.txt"))
+
+    print th
+
+    need_transfer = False
+    for k in th.bal.keys():
+
+        if k not in user_address_mapping.keys():
+            continue
+
+        account_address = user_address_mapping[k]
+        expected_bal_val = int(th.bal[k]) * 1000000000000000000
+        actual_bal_val = get_bal(account_address)
+
+        if (actual_bal_val - expected_bal_val > 1000000000000000000):
+            ether_transfer_transaction = Transaction(from_account=k, to_account="bank", value=IntRange(str(actual_bal_val - expected_bal_val - 1000000000000000000)))
+            send_and_get_response(cc.get_trans_command(ether_transfer_transaction))
+            need_transfer = True
+        elif (expected_bal_val - actual_bal_val > 1000000000000000000):
+            ether_transfer_transaction = Transaction(from_account="bank", to_account=k, value=IntRange(str(expected_bal_val - actual_bal_val)))
+            send_and_get_response(cc.get_trans_command(ether_transfer_transaction))
+            need_transfer = True
+    if need_transfer:
+        mine_a_few_blocks()
+
 def main():
     r.start_listen()
     global s
@@ -71,6 +110,11 @@ def main():
     time.sleep(3)
     send_and_get_response(None)
     send_and_get_response("personal.unlockAccount(eth.accounts[1],\"w123456\")")
+    send_and_get_response("personal.unlockAccount(eth.accounts[2],\"w123456\")")
+    send_and_get_response("personal.unlockAccount(eth.accounts[3],\"w123456\")")
+    send_and_get_response("personal.unlockAccount(eth.accounts[4],\"w123456\")")
+    send_and_get_response("personal.unlockAccount(eth.accounts[5],\"w123456\")")
+    send_and_get_response("personal.unlockAccount(eth.accounts[6],\"w123456\")")
 
     #deploying contract
     
@@ -79,39 +123,6 @@ def main():
     for line in f:
         source += line
 
-    """
-    commands = cc.get_deploy_commands(cc.remove_endl(source),[])
-    count_old = count
-    s.send("admin.nodeInfo.enode");
-
-    res = []
-    
-    for command in commands:
-        res = send_and_get_response(command,print_output=False)
-        print "------message sent-------"
-        print command
-        for i in range(0, 20):
-            time.sleep(0.1)
-            if count > count_old:
-                #print "------message received---"
-                print "buff size: "+ str(len(buff))
-                for j in range(count_old, len(buff)):
-                    #print "-------------" + str(j)
-                    print buff[j]
-                count_old = count
-                break
-        time.sleep(2)
-
-    tran_address = get_address_from_res(res)
-
-    if tran_address is not None:
-        print tran_address
-        mine_a_few_blocks()
-        res = send_and_get_response(cc.get_transaction_receipt(tran_address))
-        print str(res)
-
-
-    """
     print(str(get_block_number()))
 
     instantiate_contract("contractInstance")
@@ -164,8 +175,6 @@ def main():
 
     return
     
-    
-
 def mine_a_few_blocks():
     block_num = get_block_number()
     if block_num == -1:
@@ -214,6 +223,16 @@ def get_block_number():
         except:
             pass
     return -1
+
+def get_bal(address):
+    res = send_and_get_response("eth.getBalance(" + address + ")", print_output=False)
+    for r in res:
+        try:
+            int(r)
+            return int(r)
+        except ValueError:
+            pass
+    return 0
 
 def get_address_from_res(res, length = 64):
     if length < 4:
@@ -269,4 +288,5 @@ def foo():
     return th
 
 if __name__ == "__main__":
-    main()
+    #main()
+    main2()

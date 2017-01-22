@@ -20,12 +20,6 @@ class EthAssert:
         return
 
     def isTrue(self):
-        if (cond == ASSERT_VAR):
-            #To be implemented
-            return True
-        if (cond == ASSERT_TRANSACTION_SUCCESS):
-            #To be implemented
-            return True
         return True
 
 class Branch:
