@@ -44,8 +44,6 @@ class Parser:
                 #todo: IR for number of repeats
                 if c is not None and c != "":
                     th.history[state_index].repeat = int(c)
-            elif c == "goto":
-                pass
             elif c == "tr":
                 th.history[state_index].transactions.append(self.parse_tr(line[j:]))
             elif c == "endstate":
@@ -54,6 +52,11 @@ class Parser:
                 self.parsing_edge = True
             elif c == "endedges":
                 self.parsing_edge = False
+            #elif c == "assert":
+            #    th.history[state_index].transactions.append(self.parse_assert(line[j:]))
+            elif c == "bal":
+                c, j = getNextToken(line, j)
+                th.bal[c] = int(getNextToken(line, j)[0])
             elif self.parsing_edge:
                 vertex1 = c
                 if vertex1 in th.edge.keys():
@@ -80,13 +83,17 @@ class Parser:
             else:
                 print "unrecognized command: " + str(line_num) 
 
-        print th
+        return th
+    
     def read_file(self,filename):
         f = open(filename, 'r')
         l = list(f)
         f.close()
         return l
 
+    def parse_assert(self, line):
+        pass
+    
     def parse_tr(self,line):
 
         line = replace_var(line, self.var_table)
@@ -230,22 +237,11 @@ def replace_var(string, dic):
     return string
 
 def main():
-    """
-    dic = {"foo" : 123, "bar": 534.3, "baz" : -994, "foooa" : 223, "eebar":0}
-    print dic
-    string = "foo + baz ^ 2-eebar*foooa "
-    string = replace_var(string, dic)
-    print string
-
-    nsp = NumericStringParser()
-    print str(nsp.eval(string))
-    """
-    """
-    p = Parser()
-    p.run("Sample.txt")
-    """
     p = Parser()
     print p.eval_expression("eval(1+1)")
+    th = p.parse(p.read_file("Sample.txt"))
+    print th
+
 def getNextToken(string, index):
     start = 0
     while True:

@@ -1,9 +1,8 @@
 var_types = ["uint", "int", "bool", "address", "bytes", "string"]
 nodes = ["user0", "user1", "user2", "user3", "user4", "user5", "any", "owner", "any_user", "any_contract"]
 
-ASSERT_ACCOUNT_BALANCE = 0
-ASSERT_VAR = 1
-ASSERT_TRANSACTION_SUCCESS = 2
+ASSERT_VAL = 0
+ASSERT_TRANSACTION_SUCCESS = 1
 
 class Var:
     def __init__(self, type, value):
@@ -21,9 +20,6 @@ class EthAssert:
         return
 
     def isTrue(self):
-        if (cond == ASSERT_ACCOUNT_BALANCE):
-            #To be implemented
-            return True
         if (cond == ASSERT_VAR):
             #To be implemented
             return True
@@ -65,17 +61,22 @@ class TransactionHistory:
     def __init__(self):
         self.history = []
         self.edge = {}
+        self.bal = {}
     def isValid(self):
         return True
     def __str__(self):
         history_str = "History: \n" + "\n ".join( str(x) for x in self.history)
         edge_str = "Edges: \n"
+        bal_str = "Balances: \n"
         for x in self.edge.keys():
             for y in self.edge[x].keys():
                 if y == "edge_probability_sum":
                     continue
                 edge_str += x + " -> " + y + "  " + str(self.edge[x][y]) + " \n"
-        return "Transaction History: \n" + history_str + "\n" + edge_str
+        for x in self.bal.keys():
+            bal_str += x + " : " + str(self.bal[x]) + "\n"
+
+        return "Transaction History: \n" + history_str + "\n" + edge_str + "\n" + bal_str + "\n"
 
 class IntRange:
     def __init__(self,string):
@@ -156,7 +157,7 @@ class Transaction:
     def isValid(self):
         return True
     def __str__(self):
-        from CommandCreator import *
+        from CommandCreator import CommandCreator
         cc = CommandCreator()
         return cc.get_trans_command(self)
 
