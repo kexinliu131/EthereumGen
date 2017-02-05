@@ -4,15 +4,17 @@ nodes = ["user0", "user1", "user2", "user3", "user4", "user5", "any", "owner", "
 ASSERT_VAL = 0
 ASSERT_TRANSACTION_SUCCESS = 1
 
+
 class Var:
     def __init__(self, type, value):
         self.type = type
         self.value = value
+
     def isValid(self):
         if self.type not in var_types:
             return False
         return True
-
+"""
 class EthAssert:
     def __init__(self, cond, params):
         self.cond = cond
@@ -30,17 +32,15 @@ class Branch:
 
     def eva(self):
         return self.true_br if self.assertion.isTrue() else self.false_br
-    
+"""
+
+
 class State:
     def __init__(self, name, num_repeat = 1):
         self.repeat = num_repeat
         self.transactions = []
         self.name = name
-        
-    def isValid(self):
-        for h in self.transactions:
-            if h.__class__ is not Transaction and h.__class__ is not EthAssert and h.__class__ is not Branch:
-                return False
+
     def __str__(self):
         state_str = "--------State: " + self.name
         if self.repeat > 1:
@@ -51,13 +51,26 @@ class State:
         trans_str += "\n".join(str(tr) for tr in self.transactions)
         return state_str + trans_str
 
+
+class AgentBehaviorMapping:
+    def __init__(self, agentid, behavior_description):
+        self.agentid = agentid
+        self.behavior_description = behavior_description
+        pass
+
+    def __str__(self):
+        return "agentid: " + str(self.agentid) + "\nbehavior description: " + str(self.behavior_description)
+
+
 class TransactionHistory:
     def __init__(self):
         self.history = []
         self.edge = {}
         self.bal = {}
+
     def isValid(self):
         return True
+
     def __str__(self):
         history_str = "History: \n" + "\n ".join( str(x) for x in self.history)
         edge_str = "Edges: \n"
@@ -71,6 +84,7 @@ class TransactionHistory:
             bal_str += x + " : " + str(self.bal[x]) + "\n"
 
         return "Transaction History: \n" + history_str + "\n" + edge_str + "\n" + bal_str + "\n"
+
 
 class IntRange:
     def __init__(self,string):
@@ -123,6 +137,7 @@ class IntRange:
             else:
                 flag = False
                 self.num_count += num - temp + 1
+
     def __str__(self):
         return str(self.num_count) + "\n" + str(self.intlist)
 
@@ -139,6 +154,7 @@ class IntRange:
 
         return self.intlist[len(self.intlist)-1]
 
+
 class Transaction:
     def __init__(self, from_account, to_account, value, gas = IntRange("300000"), repeat = IntRange("1"), function = "", param = []):
         self.from_account = from_account
@@ -148,42 +164,22 @@ class Transaction:
         self.repeat = repeat
         self.function = function
         self.param = param
+
     def isValid(self):
         return True
+
     def __str__(self):
         from CommandCreator import CommandCreator
         cc = CommandCreator()
         return cc.get_trans_command(self)
 
+
 def main():
-    """
-    a = 1
-    th = TransactionHistory()
-    th.history.append(1)
-    print str(th.isValid())
-    """
-
-    """
-    b = IntRange("-1000_-995||-20_0||-500_-400||4_1||999||45_50||100_200")
-    print str(b)
-
-    for i in range (0,10):
-        print str(b.gen_random_number())
-    """
-
-    """
-    c = IntRange("1")
-    print str(c)
-
-    for i in range (0,10):
-        print str(c.gen_random_number())
-    """
 
     dic = {"a": {"b":"c"}, "d": {"d":"e"}}
     th = TransactionHistory()
     th.edge = dic
     th.history.append(1)
-
     print th
 
 if __name__=="__main__":

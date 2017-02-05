@@ -1,23 +1,24 @@
 # This is a comment
-#
-#
-#
-# This is a comment
 
 # definition of constants
 # def varName expression
-def varA IR(0|10_20)
+# def varA IR(0|10_20)
 
-# def varA 1+1
+bal user0 100
+bal user1 10
+
+def varA 1+1
 
 state A 2
 # tr sender receiver value gas repeat function params
-#tr user1 contract 1000000000000000000 3000000 5 buy [IR(0_4)]
-tr user1 contract IR(1_1000000000000000000) 3000000 5 buy [IR(0_4)]
-tr user1 contract 1000000000000000000 3000000 5 buy [eval(varA)]
+
+tr user1 contract 1000000000000000000 3000000 5 buy [IR(0_4)]
+
+# tr user1 contract IR(1_1000000000000000000) 3000000 5 buy [IR(0_4)]
+# tr user1 contract 1000000000000000000 3000000 5 buy [eval(varA)]
 endstate
 
-state B 
+state B
 tr user0 contract 0 3000000 1 finishRound
 endstate
 

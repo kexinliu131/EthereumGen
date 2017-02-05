@@ -4,9 +4,7 @@ from CommandCreator import *
 import thread
 import time
 
-
 r = Receiver()
-#print "1"
 cc = CommandCreator()
 buff = {}
 count = 0
@@ -17,6 +15,7 @@ tr_command_log = []
 
 #info after mining
 mine_log = []
+
 
 def instantiate_contract(var_name):
     #hard coded
@@ -30,6 +29,7 @@ def instantiate_contract(var_name):
     send_and_get_response(None)
     return True
 
+
 def start_receiving(buff):
     global count
     while True:
@@ -38,6 +38,7 @@ def start_receiving(buff):
         count += 1
         buff.pop(count-1000,None)
 
+
 def get_mine_log_entry():
     #hard coded, to be completed
     l = "contract balance: "
@@ -45,6 +46,7 @@ def get_mine_log_entry():
     for line in res:
         l += line
     return l
+
 
 def gen_transactions(th, contract_name = "contractInstance"):
     state = th.history[0]
@@ -62,11 +64,12 @@ def gen_transactions(th, contract_name = "contractInstance"):
     global mine_log
     mine_log.append([len(tr_address_log)-1, get_mine_log_entry()])
     
-def main2():
+
+def main():
     r.start_listen()
     global s
     s = Sender()
-    thread.start_new_thread( start_receiving, (buff,) )
+    thread.start_new_thread( start_receiving, (buff,))
     time.sleep(3)
     send_and_get_response(None)
     send_and_get_response("personal.unlockAccount(eth.accounts[1],\"w123456\")")
@@ -75,6 +78,16 @@ def main2():
     send_and_get_response("personal.unlockAccount(eth.accounts[4],\"w123456\")")
     send_and_get_response("personal.unlockAccount(eth.accounts[5],\"w123456\")")
     send_and_get_response("personal.unlockAccount(eth.accounts[6],\"w123456\")")
+
+    #deploying contract
+    f = open("./Lottery_new","r")
+    source = ""
+    for line in f:
+        source += line
+
+    print(str(get_block_number()))
+
+    instantiate_contract("contractInstance")
 
     p = Parser()
     th = p.parse(p.read_file("Sample.txt"))
@@ -91,44 +104,19 @@ def main2():
         expected_bal_val = int(th.bal[k]) * 1000000000000000000
         actual_bal_val = get_bal(account_address)
 
-        if (actual_bal_val - expected_bal_val > 1000000000000000000):
+        if actual_bal_val - expected_bal_val > 1000000000000000000:
             ether_transfer_transaction = Transaction(from_account=k, to_account="bank", value=IntRange(str(actual_bal_val - expected_bal_val - 1000000000000000000)))
             send_and_get_response(cc.get_trans_command(ether_transfer_transaction))
             need_transfer = True
-        elif (expected_bal_val - actual_bal_val > 1000000000000000000):
+        elif expected_bal_val - actual_bal_val > 1000000000000000000:
             ether_transfer_transaction = Transaction(from_account="bank", to_account=k, value=IntRange(str(expected_bal_val - actual_bal_val)))
             send_and_get_response(cc.get_trans_command(ether_transfer_transaction))
             need_transfer = True
     if need_transfer:
         mine_a_few_blocks()
 
-def main():
-    r.start_listen()
-    global s
-    s = Sender()
-    thread.start_new_thread( start_receiving, (buff,) )
-    time.sleep(3)
-    send_and_get_response(None)
-    send_and_get_response("personal.unlockAccount(eth.accounts[1],\"w123456\")")
-    send_and_get_response("personal.unlockAccount(eth.accounts[2],\"w123456\")")
-    send_and_get_response("personal.unlockAccount(eth.accounts[3],\"w123456\")")
-    send_and_get_response("personal.unlockAccount(eth.accounts[4],\"w123456\")")
-    send_and_get_response("personal.unlockAccount(eth.accounts[5],\"w123456\")")
-    send_and_get_response("personal.unlockAccount(eth.accounts[6],\"w123456\")")
-
-    #deploying contract
-    
-    f = open("./Lottery_new","r")
-    source = ""
-    for line in f:
-        source += line
-
-    print(str(get_block_number()))
-
-    instantiate_contract("contractInstance")
-
     time.sleep(1)
-    gen_transactions(foo())
+    gen_transactions(th)
 
     global tr_address_log
     global tr_command_log
@@ -145,7 +133,7 @@ def main():
         for line in receipt:
             f.write(line)
         f.write("\n\n")
-        if (len(mine_log)>0 and mine_log[0][0] == i):
+        if len(mine_log)>0 and mine_log[0][0] == i:
             f.write("-" * 40 + "\n")
             f.write("Contract Info After Mining\n")
             f.write(mine_log[0][1])
@@ -174,7 +162,8 @@ def main():
         time.sleep(2)
 
     return
-    
+
+
 def mine_a_few_blocks():
     block_num = get_block_number()
     if block_num == -1:
@@ -188,6 +177,7 @@ def mine_a_few_blocks():
             s.send("miner.stop()")
             send_and_get_response(None)
             return True
+
 
 def send_and_get_response(msg, sleep_time = 0.5, print_output = True):
     count_old = count
@@ -214,15 +204,16 @@ def send_and_get_response(msg, sleep_time = 0.5, print_output = True):
 
     return res
 
+
 def get_block_number():
     res = send_and_get_response("eth.blockNumber",print_output = False)
-    #print res
     for i in range (0, len(res)):
         try:
             return int(res[-i])
         except:
             pass
     return -1
+
 
 def get_bal(address):
     res = send_and_get_response("eth.getBalance(" + address + ")", print_output=False)
@@ -233,6 +224,7 @@ def get_bal(address):
         except ValueError:
             pass
     return 0
+
 
 def get_address_from_res(res, length = 64):
     if length < 4:
@@ -288,5 +280,4 @@ def foo():
     return th
 
 if __name__ == "__main__":
-    #main()
-    main2()
+    main()
