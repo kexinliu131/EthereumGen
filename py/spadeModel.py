@@ -16,33 +16,23 @@ class MultiAgentModel:
 
 
 class MyAgent(spade.Agent.Agent):
-    class MyBehav(spade.Behaviour.OneShotBehaviour):
-
-        def __init__(self, agent, detail):
-            spade.Behaviour.OneShotBehaviour.__init__(self)
-            self.agent = agent
-            self.detail = detail
-
-        global model
-
-        def onStart(self):
-            model.lock.acquire()
-            print "Starting behaviour . . ."
-            self.agent.value += 1
-
-        def _process(self):
-            print "Hello World from a OneShot " + str(self.agent.value)
-
-        def onEnd(self):
-            print "Ending behaviour . . ."
-            model.lock.release()
-
     def _setup(self):
         print "MyAgent starting . . ."
         self.value = 10
-        b = self.MyBehav(self)
+        b = MyBehav(self)
         self.addBehaviour(b, None)
 
+
+class MyBehav(spade.Behaviour.OneShotBehaviour):
+    def __init__(self):
+        spade.Behaviour.OneShotBehaviour.__init__(self)
+
+    def getBal(self):
+        return 1
+
+    def sendTran(self, str):
+        print "send transaction dummy"
+        pass
 
 def main():
 

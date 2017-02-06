@@ -8,6 +8,7 @@ class Parser:
         self.var_table= {}
         self.nsp = NumericStringParser()
         self.parsing_edge = False
+        self.parsing_behav = False
         pass
 
     def run(self, filename):
@@ -29,32 +30,19 @@ class Parser:
                 continue
             
             c, j = getNextToken(line, 0)
-            if c == "def":
-                self.parse_def(line[j:])
-                
-            elif c == "state":
-                c, j = getNextToken(line, j)
-                s = State(c)
-                print "appending state to th"
-                th.history.append(s)
-                state_index += 1
-                c, j = getNextToken(line, j)
-                #todo: IR for number of repeats
-                if c is not None and c != "":
-                    th.history[state_index].repeat = int(c)
-            elif c == "tr":
-                th.history[state_index].transactions.append(self.parse_tr(line[j:]))
-            elif c == "endstate":
-                current_state = None
-            elif c == "edges":
-                self.parsing_edge = True
+
+            if c == "endstate":
+                #current_state = None
+                pass
+            elif c == "endbehav":
+                print "endbehav"
+                if self.parsing_behav == False:
+                    raise Exception("behav - endbehav not matched!")
+                self.parsing_behav = False
             elif c == "endedges":
+                if self.parsing_edge == False:
+                    raise Exception("edges - endedges not matched!")
                 self.parsing_edge = False
-            #elif c == "assert":
-            #    th.history[state_index].transactions.append(self.parse_assert(line[j:]))
-            elif c == "bal":
-                c, j = getNextToken(line, j)
-                th.bal[c] = int(getNextToken(line, j)[0])
             elif self.parsing_edge:
                 vertex1 = c
                 if vertex1 in th.edge.keys():
@@ -78,6 +66,36 @@ class Parser:
                     if th.edge[vertex1]["edge_probability_sum"] > 1:
                         raise Exception("Probability bigger than 1")
 
+            elif self.parsing_behav == True:
+                print "parsing behav"
+                pass
+
+            elif c == "def":
+                self.parse_def(line[j:])
+
+            elif c == "state":
+                c, j = getNextToken(line, j)
+                s = State(c)
+                th.history.append(s)
+                state_index += 1
+                c, j = getNextToken(line, j)
+                if c is not None and c != "":
+                    th.history[state_index].repeat = int(c)
+            elif c == "tr":
+                raise Exception("Transation cannot be declared outside behavior")
+                #th.history[state_index].transactions.append(self.parse_tr(line[j:]))
+            elif c == "edges":
+                self.parsing_edge = True
+
+            elif c == "bal":
+                c, j = getNextToken(line, j)
+                th.bal[c] = int(getNextToken(line, j)[0])
+            elif c == "behav":
+                self.parsing_behav = True
+                c, j = getNextToken(line, j)
+                print state_index
+                print th.history
+                th.history[state_index].behaviors.append([c, None])
             else:
                 print "unrecognized command: " + str(line_num) 
 
@@ -88,9 +106,6 @@ class Parser:
         l = list(f)
         f.close()
         return l
-
-    def parse_assert(self, line):
-        pass
     
     def parse_tr(self,line):
 
@@ -156,9 +171,6 @@ class Parser:
 
         print "params are" + str(tr.param)
         return tr
-
-    def parse_goto(self,line):
-        pass
 
     def parse_def(self, line):
         c , j = getNextToken(line, 0)
@@ -237,7 +249,7 @@ def replace_var(string, dic):
 def main():
     p = Parser()
     print p.eval_expression("eval(1+1)")
-    th = p.parse(p.read_file("Sample.txt"))
+    th = p.parse(p.read_file("Sample3.txt"))
     print th
 
 def getNextToken(string, index):

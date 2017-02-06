@@ -1,0 +1,38 @@
+# This is a comment
+
+# definition of constants
+# def varName expression
+# def varA IR(0|10_20)
+
+bal user0 100
+bal user1 10
+
+state A 2
+# tr sender receiver value gas repeat function params
+
+behav user1-user2
+def _process(self):
+	print "Hello World from a OneShot " + str(self.agent.value)
+endbehav
+
+behav user3-user5
+def _process(self):
+	if (getBal() > self.myAgent.bal or self.myAgent.attend == False):
+		sendTransaction("tr self contract 1000000000000000000 3000000 5 buy [IR(0_4)]")
+		self.myAgent.attend = True
+	else:
+		self.myAgent.attend = False
+endbehav
+endstate
+
+state B
+behav user0
+def _process(self):
+	tr user0 contract 0 3000000 1 finishRound
+endbehav
+endstate
+
+edges
+B A
+A B 0.4 A 0.6
+endedges

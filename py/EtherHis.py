@@ -38,7 +38,7 @@ class Branch:
 class State:
     def __init__(self, name, num_repeat = 1):
         self.repeat = num_repeat
-        self.transactions = []
+        self.behaviors = []
         self.name = name
 
     def __str__(self):
@@ -48,7 +48,7 @@ class State:
         state_str += "--------\n"
 
         trans_str = "Transactions: \n"
-        trans_str += "\n".join(str(tr) for tr in self.transactions)
+        trans_str += "\n".join(str(tr) for tr in self.behaviors)
         return state_str + trans_str
 
 
