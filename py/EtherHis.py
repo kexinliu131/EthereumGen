@@ -10,29 +10,10 @@ class Var:
         self.type = type
         self.value = value
 
-    def isValid(self):
+    def is_valid(self):
         if self.type not in var_types:
             return False
         return True
-"""
-class EthAssert:
-    def __init__(self, cond, params):
-        self.cond = cond
-        self.params = params
-        return
-
-    def isTrue(self):
-        return True
-
-class Branch:
-    def __init__(self, assertion, true_br = None, false_br = None):
-        self.assertion = assertion
-        self.true_br = true_br
-        self.false_br = false_br
-
-    def eva(self):
-        return self.true_br if self.assertion.isTrue() else self.false_br
-"""
 
 
 class State:
@@ -65,10 +46,11 @@ class AgentBehaviorMapping:
 class TransactionHistory:
     def __init__(self):
         self.history = []
+        self.behav_classes = []
         self.edge = {}
         self.bal = {}
 
-    def isValid(self):
+    def is_valid(self):
         return True
 
     def __str__(self):
@@ -95,7 +77,7 @@ class IntRange:
             i = 0
             start = 0
             end = 0
-            #print s
+            # print s
             index = s.find("_")
             if (index == -1):
                 start = end = int(s)
@@ -165,7 +147,7 @@ class Transaction:
         self.function = function
         self.param = param
 
-    def isValid(self):
+    def is_valid(self):
         return True
 
     def __str__(self):
@@ -175,7 +157,6 @@ class Transaction:
 
 
 def main():
-
     dic = {"a": {"b":"c"}, "d": {"d":"e"}}
     th = TransactionHistory()
     th.edge = dic

@@ -1,8 +1,9 @@
 from EtherHis import *
 from NumericStringParser import NumericStringParser
-from spadeModel import MyBehav
+from SpadeModel import MyBehav
 
 line_num = 0
+
 
 class Parser:
     def __init__(self):
@@ -23,8 +24,9 @@ class Parser:
         class_declare = "class " + behav_name + "(MyBehav):\n"
         return behav_name, class_declare
 
-    def constructBehav(self, strs):
+    def construct_behav(self, strs):
         name, command = self.gen_behav_name()
+        #command += "\tdef _process(self):\n"
         for str in strs:
             command += ("\t" + str)
         exec(command)
@@ -32,9 +34,9 @@ class Parser:
         return name
 
     def parse(self, lines):
-
         th = TransactionHistory()
         current_behav_str = []
+        pending_agent_list = []
         state_index = -1
         
         for i in range(0, len(lines)):
@@ -50,21 +52,24 @@ class Parser:
             c, j = getNextToken(line, 0)
 
             if c == "endstate":
-                #current_state = None
+                # current_state = None
                 pass
             elif c == "endbehav":
                 print "endbehav"
-                if self.parsing_behav == False:
+                if not self.parsing_behav:
                     raise Exception("behav - endbehav not matched!")
                 self.parsing_behav = False
-                behav_name = self.constructBehav(current_behav_str)
+                self.construct_behav(current_behav_str)
                 current_behav_str = []
-                th.history[state_index].behaviors[-1][1] = behav_name
+                for p in pending_agent_list:
+                    th.history[state_index].behaviors.append([p, self.behav_index - 1])
+                pending_agent_list = []
 
             elif c == "endedges":
-                if self.parsing_edge == False:
+                if not self.parsing_edge:
                     raise Exception("edges - endedges not matched!")
                 self.parsing_edge = False
+
             elif self.parsing_edge:
                 vertex1 = c
                 if vertex1 in th.edge.keys():
@@ -88,7 +93,7 @@ class Parser:
                     if th.edge[vertex1]["edge_probability_sum"] > 1:
                         raise Exception("Probability bigger than 1")
 
-            elif self.parsing_behav == True:
+            elif self.parsing_behav:
                 print "parsing behav"
                 current_behav_str.append(line)
                 pass
@@ -115,13 +120,21 @@ class Parser:
                 th.bal[c] = int(getNextToken(line, j)[0])
             elif c == "behav":
                 self.parsing_behav = True
-                c, j = getNextToken(line, j)
-                print state_index
-                print th.history
-                th.history[state_index].behaviors.append([c, None])
+
+                strs = line[j:].strip().split(" ")
+                for s in strs:
+                    if "-" not in s:
+                        pending_agent_list.append(int(s))
+                    else:
+                        mid = s.index("-")
+                        for val in range(int(s[:mid]),int(s[mid+1:])+1):
+                            pending_agent_list.append(val)
+
             else:
                 print "unrecognized command: " + str(line_num) 
 
+        th.behav_classes = self.behav_classes
+        self.behav_classes = []
         return th
     
     def read_file(self,filename):
@@ -134,15 +147,15 @@ class Parser:
 
         line = replace_var(line, self.var_table)
         
-        #from
+        # from
         c, j = getNextToken(line, 0)
         tr_from = c
         
-        #to
+        # to
         c, j = getNextToken(line, j)
         tr_to = c
 
-        #value
+        # value
         c, j = getNextToken(line, j)
         tr_value = self.process_expression(c)
         if tr_value is None:
@@ -150,7 +163,7 @@ class Parser:
 
         tr = Transaction(tr_from, tr_to, tr_value)
         
-        #gas
+        # gas
         c, j = getNextToken(line, j)
         if c is None or c == "":
             return tr
@@ -161,7 +174,7 @@ class Parser:
 
         tr.gas = tr_gas
 
-        #repeat
+        # repeat
         c, j = getNextToken(line, j)
         if c is None or c == "":
             return tr
@@ -171,7 +184,7 @@ class Parser:
         tr.repeat = tr_repeat
         print "repeat is " + str(tr.repeat)
 
-        #function
+        # function
         c, j = getNextToken(line, j)
         if c is None or c == "":
             return tr
@@ -179,13 +192,13 @@ class Parser:
         tr.function = c
         print "function is " + tr.function
         
-        #params
+        # params
         c, j = getNextToken(line, j)
         if c is None or c == "":
             return tr
         tr.param = []
         c = c.strip()
-        if (len(c) > 2 and c[0] == '[' and c[len(c)-1] == ']'):
+        if len(c) > 2 and c[0] == '[' and c[len(c)-1] == ']':
             param_strs = (c[1:-1]).split(',')
             for p in param_strs:
                 tr.param.append(str(self.eval_expression(p.strip())))
@@ -196,17 +209,17 @@ class Parser:
         return tr
 
     def parse_def(self, line):
-        c , j = getNextToken(line, 0)
-        varName = c
+        c, j = getNextToken(line, 0)
+        var_name = c
 
-        #assuming a number
+        # assuming a number
         print "in parse def" + line[j:]
         value = self.nsp.eval(self.eval_expression(replace_var(line[j:],self.var_table)))
         if value - int(value) == 0:
             value = int(value)
         
         print str(value)
-        self.var_table[varName] = value
+        self.var_table[var_name] = value
     
     def process_expression(self,string):
         if len(string) > 3 and string[:3] == "IR(":
@@ -240,19 +253,22 @@ class Parser:
                     bracket_num += 1
                 elif string[j] == ')':
                     bracket_num -= 1
-                j+=1
+                j += 1
             print "eval_expression " + string
             val = self.nsp.eval(string[i+5:j-1].strip())
             if val - int(val) == 0:
                 val = int(val)
             string = string[:i] + str(val) + string[j+1:]
         return string
+
+
 def is_al_num(string, index):
     if index == 0 or index == len(string):
         return False
     if string[index].isalnum() or string[index] == '_':
         return True
     return False
+
 
 def replace_var(string, dic):
     print "replace var"
@@ -269,20 +285,21 @@ def replace_var(string, dic):
                 start_index = i + 1
     return string
 
+
 def main():
     p = Parser()
     print p.eval_expression("eval(1+1)")
     th = p.parse(p.read_file("Sample3.txt"))
 
-    behav0 = p.behav_classes[0]()
-    behav1 = p.behav_classes[1]()
+    """
+    behav0 = th.behav_classes[0]()
+    behav1 = th.behav_classes[1]()
 
-    print str(behav0)
-    print str(behav1)
-
-    behav0.sendTran("blah blah blah")
-
+    behav0._process()
+    behav1._process()
+    """
     print th
+
 
 def getNextToken(string, index):
     start = 0
@@ -291,12 +308,12 @@ def getNextToken(string, index):
             return None, index
         if string[index] != " ":
             start = index
-            #print "start = " + str(start)
+            # print "start = " + str(start)
             break
         index += 1
     while True:
         if index >= len(string) or string[index] == " ":
-            #print string[start:index]
+            # print string[start:index]
             return string[start:index].strip(), index
         index += 1
 

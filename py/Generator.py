@@ -9,16 +9,16 @@ cc = CommandCreator()
 buff = {}
 count = 0
 
-#parallel lists
+# parallel lists
 tr_address_log = []
 tr_command_log = []
 
-#info after mining
+# info after mining
 mine_log = []
 
 
 def instantiate_contract(var_name):
-    #hard coded
+    # hard coded
     f = open("./Lottery_new","r")
     source = ""
     for line in f:
@@ -40,7 +40,7 @@ def start_receiving(buff):
 
 
 def get_mine_log_entry():
-    #hard coded, to be completed
+    # hard coded, to be completed
     l = "contract balance: "
     res = send_and_get_response("eth.getBalance(\"0xd3c0930fe752d90f81ca575670927793d78592cd\")")
     for line in res:
@@ -79,7 +79,7 @@ def main():
     send_and_get_response("personal.unlockAccount(eth.accounts[5],\"w123456\")")
     send_and_get_response("personal.unlockAccount(eth.accounts[6],\"w123456\")")
 
-    #deploying contract
+    # deploying contract
     f = open("./Lottery_new","r")
     source = ""
     for line in f:
@@ -142,10 +142,10 @@ def main():
 
     print "\nFinished generating transactions. Type to interact with geth console."
 
-    #allows the user to interact with geth
+    # allows the user to interact with geth
     while True:
         count_old = count
-        #msg = "eth.blockNumber\n"
+        # msg = "eth.blockNumber\n"
         msg = raw_input()
         s.send(msg)
         print "------message sent-------count : " + str(count)
@@ -156,7 +156,7 @@ def main():
                 print "------message received---"
                 print "buff size: "+ str(len(buff))
                 for j in range(count_old, count):
-                    #print "-------------" + str(j)
+                    # print "-------------" + str(j)
                     print buff[j]
                 break
         time.sleep(2)
