@@ -31,8 +31,11 @@ class MyBehav(spade.Behaviour.OneShotBehaviour):
         return 1
 
     def sendTran(self, str):
-        print "send transaction dummy"
+        print "send transaction dummy: " + str
         pass
+
+    def __str__(self):
+        return "Inherited from MyBehav Object\nclass name:" + str(self.__class__) + "\n\n"
 
 def main():
 

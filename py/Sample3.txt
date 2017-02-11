@@ -28,7 +28,7 @@ endstate
 state B
 behav user0
 def _process(self):
-	tr user0 contract 0 3000000 1 finishRound
+	sendTransaction("tr user0 contract 0 3000000 1 finishRound")
 endbehav
 endstate
 

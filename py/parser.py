@@ -1,5 +1,6 @@
 from EtherHis import *
 from NumericStringParser import NumericStringParser
+from spadeModel import MyBehav
 
 line_num = 0
 
@@ -9,14 +10,31 @@ class Parser:
         self.nsp = NumericStringParser()
         self.parsing_edge = False
         self.parsing_behav = False
+        self.behav_index = 0
+        self.behav_classes = []
         pass
 
     def run(self, filename):
         return self.parse(self.read_file(filename))
-    
-    def parse(self, lines):
-        th = TransactionHistory()
 
+    def gen_behav_name(self):
+        behav_name = "MyBehav" + str(self.behav_index)
+        self.behav_index += 1
+        class_declare = "class " + behav_name + "(MyBehav):\n"
+        return behav_name, class_declare
+
+    def constructBehav(self, strs):
+        name, command = self.gen_behav_name()
+        for str in strs:
+            command += ("\t" + str)
+        exec(command)
+        exec("self.behav_classes.append(" + name + ")")
+        return name
+
+    def parse(self, lines):
+
+        th = TransactionHistory()
+        current_behav_str = []
         state_index = -1
         
         for i in range(0, len(lines)):
@@ -39,6 +57,10 @@ class Parser:
                 if self.parsing_behav == False:
                     raise Exception("behav - endbehav not matched!")
                 self.parsing_behav = False
+                behav_name = self.constructBehav(current_behav_str)
+                current_behav_str = []
+                th.history[state_index].behaviors[-1][1] = behav_name
+
             elif c == "endedges":
                 if self.parsing_edge == False:
                     raise Exception("edges - endedges not matched!")
@@ -68,6 +90,7 @@ class Parser:
 
             elif self.parsing_behav == True:
                 print "parsing behav"
+                current_behav_str.append(line)
                 pass
 
             elif c == "def":
@@ -250,6 +273,15 @@ def main():
     p = Parser()
     print p.eval_expression("eval(1+1)")
     th = p.parse(p.read_file("Sample3.txt"))
+
+    behav0 = p.behav_classes[0]()
+    behav1 = p.behav_classes[1]()
+
+    print str(behav0)
+    print str(behav1)
+
+    behav0.sendTran("blah blah blah")
+
     print th
 
 def getNextToken(string, index):
