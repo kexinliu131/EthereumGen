@@ -1,9 +1,11 @@
 from parser import *
 from TCPSendReceive import *
 from CommandCreator import *
+from SpadeModel import MultiAgentModel
 import thread
 import time
 
+"""
 r = Receiver()
 cc = CommandCreator()
 buff = {}
@@ -15,7 +17,7 @@ tr_command_log = []
 
 # info after mining
 mine_log = []
-
+"""
 
 def instantiate_contract(var_name):
     # hard coded
@@ -50,9 +52,10 @@ def get_mine_log_entry():
 
 def gen_transactions(th, contract_name = "contractInstance"):
     state = th.history[0]
-    global tr_address_log
-    global tr_command_log
-    
+    #global tr_address_log
+    #global tr_command_log
+
+    """
     for t in state.transactions:
         for i in range (0, t.repeat.gen_random_number()):
             tran_str = cc.get_trans_command(t, contract_name)
@@ -60,10 +63,24 @@ def gen_transactions(th, contract_name = "contractInstance"):
             tr_address_log.append(get_address_from_res(res))
             tr_command_log.append(tran_str)
             time.sleep(0.5)
-    mine_a_few_blocks()
-    global mine_log
-    mine_log.append([len(tr_address_log)-1, get_mine_log_entry()])
-    
+    """
+    while True:
+        MultiAgentModel.this_model.run_behaviors(state, th.behav_classes)
+        # mine_a_few_blocks()
+        print "----------------------sleep!----------------------"
+        time.sleep(5)
+
+        #global mine_log
+        #mine_log.append([len(tr_address_log)-1, get_mine_log_entry()])
+        state = get_next_state(state, th)
+        if state == None:
+            break
+    print "finished generating transactions!!!!!!"
+
+def get_next_state(state, th):
+    if state == th.history[0]:
+        return th.history[1]
+    return None
 
 def main():
     r.start_listen()
@@ -279,5 +296,23 @@ def foo():
     th.history.append(st)
     return th
 
+
+def main2():
+    model = MultiAgentModel()
+    model.start()
+    p = Parser()
+    th = p.parse(p.read_file("Sample3.txt"))
+    print "\ntransaction history\n"
+    print th
+    print "\n"
+
+    gen_transactions(th)
+
+    for k in MultiAgentModel.this_model.agent_list:
+        MultiAgentModel.this_model.agent_list[k].stop()
+
+    print "exiting"
+    exit()
+
 if __name__ == "__main__":
-    main()
+    main2()

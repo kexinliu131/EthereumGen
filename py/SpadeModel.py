@@ -10,36 +10,40 @@ class MultiAgentModel:
     count_lock = threading.Lock()
 
     def __init__(self, generator=None):
-        self.varTable = dict()
-        self.agentList = dict()
+        # self.varTable = dict()
+        self.agent_list = dict()
         self.running_agent = 0
         self.generator = generator
-        this_model = self # singleton pattern
+        MultiAgentModel.this_model = self # singleton pattern
 
     def start(self):
-        for i in range(1, 6):
-            self.agentList['user' + str(i)] = MyAgent("agent" + str(i) + "@127.0.0.1", "secret");
-            self.agentList['user' + str(i)].start()
+        for i in range(0, 6):
+            self.agent_list[i] = MyAgent("agent" + str(i) + "@127.0.0.1", "secret");
+            self.agent_list[i].start()
 
     def __str__(self):
         return "MultiAgentModel"
 
-    def run_behaviors(self, state, tr):
+    def run_behaviors(self, state, behav_classes):
         if state.behaviors == []:
             return
 
         MultiAgentModel.state_lock.acquire()
+        self.running_agent += len(state.behaviors)
+
         for behav in state.behaviors:
-            pass
+            print str(behav[0]) + "   " + str(behav[1]) + "   " + str(len(behav_classes)) + "   " + str(len(behav))
+            MultiAgentModel.this_model.agent_list[behav[0]].addBehaviour(behav_classes[behav[1]]())
+            print "finished add behaviour"
+        MultiAgentModel.state_lock.acquire()
+        MultiAgentModel.state_lock.release()
+        return
 
 
 class MyAgent(spade.Agent.Agent):
     def _setup(self):
         print "MyAgent starting . . ."
         self.value = 10
-        b = MyBehav()
-        self.addBehaviour(b)
-
 
 class MyBehav(spade.Behaviour.OneShotBehaviour):
     def onStart(self):
@@ -58,6 +62,7 @@ class MyBehav(spade.Behaviour.OneShotBehaviour):
         return 1
 
     def onEnd(self):
+        print "on end before acquiring lock"
         MultiAgentModel.count_lock.acquire()
         print "on end"
         MultiAgentModel.this_model.running_agent -= 1
