@@ -4,20 +4,50 @@ from CommandCreator import *
 from SpadeModel import MultiAgentModel
 import thread
 import time
-
-"""
-r = Receiver()
-cc = CommandCreator()
-buff = {}
-count = 0
+import threading
 
 # parallel lists
 tr_address_log = []
 tr_command_log = []
 
+r = Receiver()
+cc = CommandCreator()
+buff = {}
+count = 0
+
 # info after mining
 mine_log = []
-"""
+
+# This class is used for Agents to interact with the blockchain
+class AgentBlockChainHandler:
+    def __init__(self):
+        print "AgentBlockChainHandler init"
+        self.lock = threading.Lock()
+        self.cc = CommandCreator()
+
+    def agent_send_tran(self, tr):
+        self.lock.acquire()
+        print "AgentBlockChainHandler send tran"
+        global tr_address_log
+        global tr_command_log
+        tran_str = self.cc.get_trans_command(tr)
+        res = send_and_get_response(tran_str)
+        tr_address_log.append(get_address_from_res(res))
+        tr_command_log.append(tran_str)
+        time.sleep(0.5)
+        print "AgentBlockChainHandler send tran finished"
+        self.lock.release()
+        return 20
+
+    def agent_get_bal(self, id):
+        self.lock.acquire()
+        print "AgentBlockChainHandler get bal" + user_address_mapping[id]
+        time.sleep(3)
+        print "AgentBlockChainHandler get bal finished"
+        self.lock.release()
+        return get_bal(user_address_mapping[id])
+        # return 10
+
 
 def instantiate_contract(var_name):
     # hard coded
@@ -27,7 +57,7 @@ def instantiate_contract(var_name):
         source += line
     send_and_get_response("var contractSource = \"" + cc.remove_endl(source) + "\"")
     send_and_get_response("var contractCompiled = web3.eth.compile.solidity(contractSource)")
-    send_and_get_response("var " + var_name + " = eth.contract(contractCompiled.Lottery.info.abiDefinition).at(\"0xd3c0930fe752d90f81ca575670927793d78592cd\")")
+    send_and_get_response("var " + var_name + " = eth.contract(contractCompiled[\"<stdin>:Lottery\"].info.abiDefinition).at(\"0xd3c0930fe752d90f81ca575670927793d78592cd\")")
     send_and_get_response(None)
     return True
 
@@ -52,8 +82,8 @@ def get_mine_log_entry():
 
 def gen_transactions(th, contract_name = "contractInstance"):
     state = th.history[0]
-    #global tr_address_log
-    #global tr_command_log
+    global tr_address_log
+    global tr_command_log
 
     """
     for t in state.transactions:
@@ -66,12 +96,11 @@ def gen_transactions(th, contract_name = "contractInstance"):
     """
     while True:
         MultiAgentModel.this_model.run_behaviors(state, th.behav_classes)
-        # mine_a_few_blocks()
-        print "----------------------sleep!----------------------"
-        time.sleep(5)
 
-        #global mine_log
-        #mine_log.append([len(tr_address_log)-1, get_mine_log_entry()])
+        print "----------------------mine!----------------------"
+        mine_a_few_blocks()
+        global mine_log
+        mine_log.append([len(tr_address_log)-1, get_mine_log_entry()])
         state = get_next_state(state, th)
         if state == None:
             break
@@ -107,7 +136,7 @@ def main():
     instantiate_contract("contractInstance")
 
     p = Parser()
-    th = p.parse(p.read_file("Sample.txt"))
+    th = p.parse(p.read_file("Sample3.txt"))
 
     print th
 
@@ -133,6 +162,14 @@ def main():
         mine_a_few_blocks()
 
     time.sleep(1)
+
+
+    model = MultiAgentModel(AgentBlockChainHandler())
+    model.start()
+    p = Parser()
+    th = p.parse(p.read_file("Sample3.txt"))
+
+
     gen_transactions(th)
 
     global tr_address_log
@@ -158,6 +195,9 @@ def main():
     f.close()
 
     print "\nFinished generating transactions. Type to interact with geth console."
+
+    for k in MultiAgentModel.this_model.agent_list:
+        MultiAgentModel.this_model.agent_list[k].stop()
 
     # allows the user to interact with geth
     while True:
@@ -258,7 +298,7 @@ def get_address_from_res(res, length = 64):
         else:
             return "\"" + s[index+17:index+83] + "\""
 
-    return None
+    return "NOT FOUND"
 
 """
 def foo():
@@ -298,7 +338,7 @@ def foo():
 
 
 def main2():
-    model = MultiAgentModel()
+    model = MultiAgentModel(AgentBlockChainHandler())
     model.start()
     p = Parser()
     th = p.parse(p.read_file("Sample3.txt"))
@@ -315,4 +355,4 @@ def main2():
     exit()
 
 if __name__ == "__main__":
-    main2()
+    main()
