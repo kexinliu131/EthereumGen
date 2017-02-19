@@ -46,7 +46,9 @@ class AgentBlockChainHandler:
         print "AgentBlockChainHandler get bal finished"
         self.lock.release()
         return get_bal(user_address_mapping[id])
-        # return 10
+
+    def get_val(self, val_name):
+        pass
 
 
 def instantiate_contract(var_name):
@@ -163,12 +165,10 @@ def main():
 
     time.sleep(1)
 
-
     model = MultiAgentModel(AgentBlockChainHandler())
     model.start()
     p = Parser()
     th = p.parse(p.read_file("Sample3.txt"))
-
 
     gen_transactions(th)
 

@@ -72,16 +72,14 @@ class MyBehav(spade.Behaviour.OneShotBehaviour):
         if MultiAgentModel.this_model.running_agent == 0:
             MultiAgentModel.state_lock.release()
 
-    def send_tran(self, toAccount, value = IntRange("0"), gas = IntRange("300000"), repeat = IntRange("1"), function = "", param = []):
+    def send_tran(self, toAccount, value = IntRange("0"), gas = IntRange("300000"), data = None, function = "", param = []):
         print "send transaction in behavior"
         if (isinstance(value, numbers.Integral)):
             value = IntRange(str(value))
         if (isinstance(gas, numbers.Integral)):
             gas = IntRange(str(gas))
-        if (isinstance(repeat, numbers.Integral)):
-            repeat = IntRange(str(repeat))
 
-        tr = Transaction(self.myAgent.id, toAccount, value, gas, repeat, function, param)
+        tr = Transaction(self.myAgent.id, toAccount, value, gas, data, function, param)
         print "created tr object"
         return MultiAgentModel.this_model.handler.agent_send_tran(tr)
 

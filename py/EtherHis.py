@@ -138,12 +138,12 @@ class IntRange:
 
 
 class Transaction:
-    def __init__(self, from_account, to_account, value, gas = IntRange("300000"), repeat = IntRange("1"), function = "", param = []):
+    def __init__(self, from_account, to_account, value, gas = IntRange("300000"), data = None, function = "", param = []):
         self.from_account = from_account
         self.to_account = to_account
         self.value = value
         self.gas = gas
-        self.repeat = repeat
+        self.data = data
         self.function = function
         self.param = param
 
