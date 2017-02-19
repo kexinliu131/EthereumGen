@@ -51,6 +51,40 @@ class AgentBlockChainHandler:
         pass
 
 
+def deploy_contract(file_name, contract_name = None):
+    f = open(file_name, "r")
+    source = ""
+    for line in f:
+        line = line.strip()
+        if len(line) >= 2 and line[0:2] == "//":
+            continue
+        source += line
+    commands = cc.get_deploy_commands(cc.remove_endl(source), contract_name)
+    send_and_get_response(commands[0])
+    send_and_get_response(commands[1])
+    send_and_get_response(commands[2])
+
+    res = send_and_get_response(commands[3])
+
+    transaction_hash = get_address_from_res(res)
+    if transaction_hash == "NOT FOUND":
+        raise Exception("Deploy Contract Unsuccessful!")
+
+    print "deploy response-------------"
+    for line in res:
+        print line
+
+    mine_a_few_blocks()
+
+    res = send_and_get_response("eth.getTransactionReceipt(" + transaction_hash + ")")
+
+    contract_address = get_address_from_res(res, "contractAddress:", 40)
+    if contract_address == "NOT FOUND":
+        raise Exception("contract address not found")
+
+    return contract_address
+
+
 def instantiate_contract(var_name):
     # hard coded
     f = open("./Lottery_new","r")
@@ -202,7 +236,6 @@ def main():
     # allows the user to interact with geth
     while True:
         count_old = count
-        # msg = "eth.blockNumber\n"
         msg = raw_input()
         s.send(msg)
         print "------message sent-------count : " + str(count)
@@ -213,7 +246,6 @@ def main():
                 print "------message received---"
                 print "buff size: "+ str(len(buff))
                 for j in range(count_old, count):
-                    # print "-------------" + str(j)
                     print buff[j]
                 break
         time.sleep(2)
@@ -283,11 +315,11 @@ def get_bal(address):
     return 0
 
 
-def get_address_from_res(res, length = 64):
+def get_address_from_res(res, keyword = "TransactionHash:", length = 64):
     if length < 4:
         return None
     for s in res:
-        index = s.find("TransactionHash:")
+        index = s.find(keyword)
         if  index == -1:
             s2 = s.strip(" \n")
             if len(s2) != length + 4:
@@ -296,63 +328,50 @@ def get_address_from_res(res, length = 64):
                 continue
             return s2
         else:
-            return "\"" + s[index+17:index+83] + "\""
+            index = s.find("0x",index)
+            if index == -1:
+                continue
+            return "\"" + s[index:index+length+2] + "\""
 
     return "NOT FOUND"
 
-"""
-def foo():
-    th = TransactionHistory()
-    st = State("init")
-    st.transactions.append(Transaction("user1", "contract", IntRange("1000000000000000000"), IntRange("3000000"), IntRange("5"), "buy" , [IntRange("0_4")]))
-    st.transactions.append(Transaction("user0", "contract", IntRange("0"), IntRange("3000000"), IntRange("1"), "finishRound"))
-    
-    th.history.append(st)
-    return th
-"""
-
-
-def foo():
-    th = TransactionHistory()
-    st = State("init")
-    st.transactions.append(
-        Transaction("user1", "contract", IntRange("1000000000000000000"), IntRange("30000000"), IntRange("1"), "buy",
-                    [IntRange("0")]))
-    st.transactions.append(
-        Transaction("user1", "contract", IntRange("1000000000000000000"), IntRange("30000000"), IntRange("1"), "buy",
-                    [IntRange("1")]))
-    st.transactions.append(
-        Transaction("user1", "contract", IntRange("1000000000000000000"), IntRange("30000000"), IntRange("1"), "buy",
-                    [IntRange("2")]))
-    st.transactions.append(
-        Transaction("user1", "contract", IntRange("1000000000000000000"), IntRange("30000000"), IntRange("1"), "buy",
-                    [IntRange("3")]))
-    st.transactions.append(
-        Transaction("user1", "contract", IntRange("1000000000000000000"), IntRange("30000000"), IntRange("1"), "buy",
-                    [IntRange("4")]))
-    st.transactions.append(
-        Transaction("user0", "contract", IntRange("0"), IntRange("3000000"), IntRange("1"), "finishRound"))
-
-    th.history.append(st)
-    return th
-
 
 def main2():
-    model = MultiAgentModel(AgentBlockChainHandler())
-    model.start()
-    p = Parser()
-    th = p.parse(p.read_file("Sample3.txt"))
-    print "\ntransaction history\n"
-    print th
-    print "\n"
+    r.start_listen()
+    global s
+    s = Sender()
+    thread.start_new_thread( start_receiving, (buff,))
 
-    gen_transactions(th)
+    send_and_get_response("personal.unlockAccount(eth.accounts[1],\"w123456\")")
+    send_and_get_response("personal.unlockAccount(eth.accounts[2],\"w123456\")")
 
-    for k in MultiAgentModel.this_model.agent_list:
-        MultiAgentModel.this_model.agent_list[k].stop()
+    contract_address = deploy_contract("./kingofetherthrone", "KingOfTheEtherThrone")
 
-    print "exiting"
-    exit()
+    print '\x1b[6;30;42m' + "contract successfully deployed at the following address:" + '\x1b[0m'
+    print '\x1b[6;30;42m' + contract_address + "\n" + '\x1b[0m'
+
+    time.sleep(5)
+
+    while True:
+        count_old = count
+        # msg = "eth.blockNumber\n"
+        msg = raw_input()
+        s.send(msg)
+        print "------message sent-------count : " + str(count)
+        print msg
+        for i in range(0,20):
+            time.sleep(0.1)
+            if count > count_old:
+                print "------message received---"
+                print "buff size: "+ str(len(buff))
+                for j in range(count_old, count):
+                    # print "-------------" + str(j)
+                    print buff[j]
+                break
+        time.sleep(2)
+
+    return
+
 
 if __name__ == "__main__":
-    main()
+    main2()

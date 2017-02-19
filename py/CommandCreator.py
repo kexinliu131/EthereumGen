@@ -61,15 +61,16 @@ class CommandCreator:
                    + ", gas : " + str(tr.gas.gen_random_number()) + data_str + "})"
         return res
 
-    def get_deploy_commands(self, source, params, gas=IntRange("3000000")):
+    def get_deploy_commands(self, source, contract_name = None, params = [],gas=IntRange("3000000")):
         source = self.remove_endl(source)
 
+        if contract_name is None:
+            contract_name = self.get_contract_name(source)
         res = []
         res.append("var codeSource = \'" + source + '\'')
         res.append("var codeCompiled = web3.eth.compile.solidity(codeSource)");
-        res.append("var ethContract = web3.eth.contract(codeCompiled." + self.get_contract_name(
-            source) + ".info.abiDefinition);")
-
+        #res.append("var ethContract = web3.eth.contract(codeCompiled." + contract_name + ".info.abiDefinition);")
+        res.append("var ethContract = web3.eth.contract(codeCompiled[\"<stdin>:" + contract_name + "\"].info.abiDefinition);")
         create_instance_command = "var contractInstance = ethContract.new("
 
         if len(params) > 0:
@@ -78,7 +79,7 @@ class CommandCreator:
         create_instance_command += "{from:"
         create_instance_command += self.get_account_str("user0")
         create_instance_command += ", data: "
-        create_instance_command += "codeCompiled." + self.get_contract_name(source) + ".code, gas: "
+        create_instance_command += "codeCompiled[\"<stdin>:" + contract_name + "\"].code, gas: "
         create_instance_command += str(gas.gen_random_number())
 
         create_instance_command += "}, function(e, contract){if(!e) {if(!contract.address) " \
@@ -117,13 +118,15 @@ def main():
     f = open("./Lottery_backup_1", "r")
     source = ""
     for line in f:
+        line = line.strip()
+        if len(line) >= 2 and line[0:2] == "//":
+            continue
         source += line
 
     commands = cc.get_deploy_commands(cc.remove_endl(source), [])
     for command in commands:
         print "-----------------------------------"
         print command
-        print ""
 
 
 if __name__ == "__main__":
