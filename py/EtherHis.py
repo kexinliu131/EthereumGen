@@ -24,8 +24,10 @@ class State:
 
     def __str__(self):
         state_str = "--------State: " + self.name
+        """
         if self.repeat > 1:
             state_str += "  repeat: " + str(self.repeat) + " "
+        """
         state_str += "--------\n"
 
         trans_str = "Transactions: \n"

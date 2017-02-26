@@ -143,8 +143,24 @@ def gen_transactions(th, contract_name = "contractInstance"):
     print "finished generating transactions!!!!!!"
 
 def get_next_state(state, th):
+    """
     if state == th.history[0]:
         return th.history[1]
+    """
+    import random
+    r = random.uniform(0,1)
+
+    edges = th.edge[state.name]
+    if edges is not None:
+        for k in edges.keys():
+            if edges[k] >= r:
+                for s in th.history:
+                    if s.name == k:
+                        return s
+                raise Exception("Invalid state name in get_next_state()")
+            else:
+                r -= edges[k]
+        raise Exception("invalid probability in get_next_state()")
     return None
 
 def main():
@@ -372,6 +388,18 @@ def main2():
 
     return
 
+def main3():
+    p = Parser()
+    th = p.parse(p.read_file("Sample3.txt"))
+
+    print str(get_next_state(th.history[0], th))
+    print str(get_next_state(th.history[0], th))
+    print str(get_next_state(th.history[0], th))
+    print str(get_next_state(th.history[0], th))
+    print str(get_next_state(th.history[0], th))
+    print str(get_next_state(th.history[0], th))
+    print str(get_next_state(th.history[0], th))
+    print str(get_next_state(th.history[0], th))
 
 if __name__ == "__main__":
-    main2()
+    main3()
