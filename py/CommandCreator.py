@@ -33,7 +33,7 @@ class CommandCreator:
             data_str = ", data: web3.fromAscii(\"" + tr.data + "\")"
         res = ""
 
-        print "data_str: " + data_str + "\n"
+        # print "data_str: " + data_str + "\n"
 
         # normal transaction
         if (tr.to_account != 'contract'):
@@ -50,7 +50,7 @@ class CommandCreator:
             if tr.function != "":
                 res += tr.function + "."
             res += "sendTransaction("
-            print "param length: " + str(len(tr.param))
+            # print "param length: " + str(len(tr.param))
             for j in range(0, len(tr.param)):
                 if isinstance(tr.param[j], IntRange):
                     res += str(tr.param[j].gen_random_number())

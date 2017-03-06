@@ -5,15 +5,16 @@ from EtherHis import Transaction, IntRange
 
 
 class MultiAgentModel:
-
     this_model = None
     state_lock = threading.Lock()
     count_lock = threading.Lock()
+    var_lock = threading.Lock()
 
     def __init__(self, handler=None):
         self.agent_list = dict()
         self.running_agent = 0
         self.handler = handler
+        self.var_list = dict()
         MultiAgentModel.this_model = self # singleton pattern
 
     def start(self):
@@ -73,15 +74,31 @@ class MyBehav(spade.Behaviour.OneShotBehaviour):
             MultiAgentModel.state_lock.release()
 
     def send_tran(self, toAccount, value = IntRange("0"), gas = IntRange("300000"), data = None, function = "", param = []):
-        print "send transaction in behavior"
+        # print "send transaction in behavior"
         if (isinstance(value, numbers.Integral)):
             value = IntRange(str(value))
         if (isinstance(gas, numbers.Integral)):
             gas = IntRange(str(gas))
 
         tr = Transaction(self.myAgent.id, toAccount, value, gas, data, function, param)
-        print "created tr object"
+        # print "created tr object"
+        # print str(tr)
         return MultiAgentModel.this_model.handler.agent_send_tran(tr)
+
+    def get_glob(self, key):
+        print "INSIDE GETGLOBAL"
+        MultiAgentModel.var_lock.acquire()
+        if key not in MultiAgentModel.this_model.var_list.keys():
+            return None
+        value = MultiAgentModel.this_model.var_list[key]
+        MultiAgentModel.var_lock.release()
+        return value
+
+    def set_glob(self, key, value):
+        print "INSIDE SETGLOBAL"
+        MultiAgentModel.var_lock.acquire()
+        MultiAgentModel.this_model.var_list[key] = value
+        MultiAgentModel.var_lock.release()
 
     def __str__(self):
         return "Inherited from MyBehav Object\nclass name:" + str(self.__class__) + "\n\n"

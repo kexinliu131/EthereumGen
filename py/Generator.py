@@ -1,7 +1,7 @@
 from parser import *
 from TCPSendReceive import *
 from CommandCreator import *
-from SpadeModel import MultiAgentModel
+from SpadeModel import MultiAgentModel, MyBehav
 import thread
 import time
 import threading
@@ -18,10 +18,28 @@ count = 0
 # info after mining
 mine_log = []
 
+
+def get_glob(key):
+    print "INSIDE GETGLOBAL"
+    MultiAgentModel.var_lock.acquire()
+    if key not in MultiAgentModel.this_model.var_list.keys():
+        return None
+    value = MultiAgentModel.this_model.var_list[key]
+    MultiAgentModel.var_lock.release()
+    return value
+
+
+def set_glob(key, value):
+    print "INSIDE SETGLOBAL"
+    MultiAgentModel.var_lock.acquire()
+    MultiAgentModel.this_model.var_list[key] = value
+    MultiAgentModel.var_lock.release()
+
+
 # This class is used for Agents to interact with the blockchain
 class AgentBlockChainHandler:
     def __init__(self):
-        print "AgentBlockChainHandler init"
+        # print "AgentBlockChainHandler init"
         self.lock = threading.Lock()
         self.cc = CommandCreator()
 
@@ -41,9 +59,9 @@ class AgentBlockChainHandler:
 
     def agent_get_bal(self, id):
         self.lock.acquire()
-        print "AgentBlockChainHandler get bal" + user_address_mapping[id]
+        # print "AgentBlockChainHandler get bal" + user_address_mapping[id]
         time.sleep(3)
-        print "AgentBlockChainHandler get bal finished"
+        # print "AgentBlockChainHandler get bal finished"
         self.lock.release()
         return get_bal(user_address_mapping[id])
 
@@ -70,9 +88,9 @@ def deploy_contract(file_name, contract_name = None):
     if transaction_hash == "NOT FOUND":
         raise Exception("Deploy Contract Unsuccessful!")
 
-    print "deploy response-------------"
-    for line in res:
-        print line
+    # print "deploy response-------------"
+    # for line in res:
+    #     print line
 
     mine_a_few_blocks()
 
@@ -138,8 +156,11 @@ def gen_transactions(th, contract_name = "contractInstance"):
         global mine_log
         mine_log.append([len(tr_address_log)-1, get_mine_log_entry()])
         state = get_next_state(state, th)
+
         if state == None:
             break
+        else:
+            print "STATE CHANGED TO: " + state.name
     print "finished generating transactions!!!!!!"
 
 def get_next_state(state, th):
@@ -150,7 +171,14 @@ def get_next_state(state, th):
     import random
     r = random.uniform(0,1)
 
+    if state.name not in th.edge.keys():
+        return None
+
     edges = th.edge[state.name]
+
+    print "INSIDE GET NEXT STATE:"
+    print str(edges)
+
     if edges is not None:
         for k in edges.keys():
             if edges[k] >= r:
@@ -162,6 +190,7 @@ def get_next_state(state, th):
                 r -= edges[k]
         raise Exception("invalid probability in get_next_state()")
     return None
+
 
 def main():
     r.start_listen()
@@ -217,8 +246,6 @@ def main():
 
     model = MultiAgentModel(AgentBlockChainHandler())
     model.start()
-    p = Parser()
-    th = p.parse(p.read_file("Sample3.txt"))
 
     gen_transactions(th)
 
@@ -245,6 +272,8 @@ def main():
     f.close()
 
     print "\nFinished generating transactions. Type to interact with geth console."
+
+    print str(MultiAgentModel.this_model.var_list)
 
     for k in MultiAgentModel.this_model.agent_list:
         MultiAgentModel.this_model.agent_list[k].stop()
@@ -402,4 +431,5 @@ def main3():
     print str(get_next_state(th.history[0], th))
 
 if __name__ == "__main__":
-    main3()
+    # main3()
+    main()

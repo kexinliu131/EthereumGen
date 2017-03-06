@@ -11,6 +11,7 @@ class Parser:
         self.nsp = NumericStringParser()
         self.parsing_edge = False
         self.parsing_behav = False
+        self.parsing_state = False
         self.behav_index = 0
         self.behav_classes = []
         pass
@@ -26,7 +27,8 @@ class Parser:
 
     def construct_behav(self, strs):
         name, command = self.gen_behav_name()
-        #command += "\tdef _process(self):\n"
+        # command += "\tdef _process(self):\n"
+        # command += "\tfrom SpadeModel import get_glob, set_glob\n"
         for str in strs:
             command += ("\t" + str)
         exec(command)
@@ -52,8 +54,7 @@ class Parser:
             c, j = getNextToken(line, 0)
 
             if c == "endstate":
-                # current_state = None
-                pass
+                self.parsing_state = False
             elif c == "endbehav":
                 print "endbehav"
                 if not self.parsing_behav:
@@ -64,12 +65,32 @@ class Parser:
                 for p in pending_agent_list:
                     th.history[state_index].behaviors.append([p, self.behav_index - 1])
                 pending_agent_list = []
-
             elif c == "endedges":
                 if not self.parsing_edge:
                     raise Exception("edges - endedges not matched!")
                 self.parsing_edge = False
-
+            elif c == "fork":
+                if self.parsing_behav or not self.parsing_state:
+                    raise Exception("invalid fork")
+                c, j = getNextToken(line, j)
+                fork_entry = []
+                fork_entry.append(c)
+                c, j = getNextToken(line, j)
+                fork_entry.append(int(c))
+                c, j = getNextToken(line, j)
+                fork_entry.append(int(c))
+                print fork_entry
+                th.history[state_index].fork_list.append(fork_entry)
+            elif c == "goto":
+                if self.parsing_behav or not self.parsing_state:
+                    raise Exception("invalid goto")
+                goto_entry = []
+                c, j = getNextToken(line, j)
+                goto_entry.append(c)
+                goto_entry.append(line[j:].replace(" ","").replace("\n",""))
+                print goto_entry
+                print eval(goto_entry[-1])
+                th.history[state_index].goto_list.append(goto_entry)
             elif self.parsing_edge:
                 vertex1 = c
                 if vertex1 in th.edge.keys():
@@ -102,6 +123,7 @@ class Parser:
                 self.parse_def(line[j:])
 
             elif c == "state":
+                self.parsing_state = True
                 c, j = getNextToken(line, j)
                 s = State(c)
                 th.history.append(s)
@@ -111,7 +133,7 @@ class Parser:
                     th.history[state_index].repeat = int(c)
             elif c == "tr":
                 raise Exception("Transation cannot be declared outside behavior")
-                #th.history[state_index].transactions.append(self.parse_tr(line[j:]))
+                # th.history[state_index].transactions.append(self.parse_tr(line[j:]))
             elif c == "edges":
                 self.parsing_edge = True
 
@@ -136,7 +158,7 @@ class Parser:
         th.behav_classes = self.behav_classes
         self.behav_classes = []
         return th
-    
+
     def read_file(self,filename):
         f = open(filename, 'r')
         l = list(f)
@@ -288,17 +310,7 @@ def replace_var(string, dic):
 
 def main():
     p = Parser()
-    print p.eval_expression("eval(1+1)")
-    th = p.parse(p.read_file("Sample3.txt"))
-
-    """
-    behav0 = th.behav_classes[0]()
-    behav1 = th.behav_classes[1]()
-
-    behav0._process()
-    behav1._process()
-    """
-    print th
+    th = p.parse(p.read_file("Sample4.txt"))
 
 
 def getNextToken(string, index):

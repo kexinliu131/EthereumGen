@@ -20,6 +20,8 @@ class State:
     def __init__(self, name, num_repeat = 1):
         self.repeat = num_repeat
         self.behaviors = []
+        self.fork_list = []
+        self.goto_list = []
         self.name = name
 
     def __str__(self):
