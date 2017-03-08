@@ -1,7 +1,8 @@
 from EtherHis import *
 import string
 
-user_address_mapping = {"user0": "\"0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\"",
+user_address_mapping = {"contract": "\"0xd3c0930fe752d90f81ca575670927793d78592cd\"",
+                        "user0": "\"0x6a29b8b9d18e48b5e181866b1cc71908b08ccf14\"",
                         "bank": "\"0xf7262322f3d86d15f79f8b0e88d78901db89a334\"",
                         "user1": "\"0x1c85b5bef9ffa436781148aef87e5f0a944281e7\"",
                         "user2": "\"0xe152a607ce15935664cd4071c8c35763c807613e\"",
@@ -22,7 +23,7 @@ class CommandCreator:
         return user_address_mapping[account]
 
     def get_trans_command(self, tr, contract_name="contractInstance"):
-        print "get_trans_command\n"
+        # print "get_trans_command\n"
 
         data_str = ""
         if tr.data is not None:

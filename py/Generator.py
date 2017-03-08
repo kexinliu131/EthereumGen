@@ -36,6 +36,10 @@ def set_glob(key, value):
     MultiAgentModel.var_lock.release()
 
 
+def get_bal(name):
+    return MultiAgentModel.this_model.handler.agent_get_bal(name)
+
+
 # This class is used for Agents to interact with the blockchain
 class AgentBlockChainHandler:
     def __init__(self):
@@ -45,29 +49,34 @@ class AgentBlockChainHandler:
 
     def agent_send_tran(self, tr):
         self.lock.acquire()
-        print "AgentBlockChainHandler send tran"
+        # print "AgentBlockChainHandler send tran"
         global tr_address_log
         global tr_command_log
         tran_str = self.cc.get_trans_command(tr)
+        send_and_get_response(None, print_output=False, sleep_time=0, wait_round=1)
         res = send_and_get_response(tran_str)
         tr_address_log.append(get_address_from_res(res))
         tr_command_log.append(tran_str)
-        time.sleep(0.5)
-        print "AgentBlockChainHandler send tran finished"
+        time.sleep(0.2)
+        # print "AgentBlockChainHandler send tran finished"
         self.lock.release()
         return 20
 
     def agent_get_bal(self, id):
         self.lock.acquire()
         # print "AgentBlockChainHandler get bal" + user_address_mapping[id]
-        time.sleep(3)
+        send_and_get_response(None, print_output=False, sleep_time=0, wait_round=1)
+        res = send_get_bal(user_address_mapping[id])
         # print "AgentBlockChainHandler get bal finished"
         self.lock.release()
-        return get_bal(user_address_mapping[id])
+        return res
 
-    def get_val(self, val_name):
-        pass
-
+    def agent_call(self, function, contract_name="contractInstance"):
+        self.lock.acquire()
+        send_and_get_response(None, print_output=False, sleep_time=0, wait_round=1)
+        res = send_and_get_response(contract_name + "." + function, print_output=False)[0].replace("\n","")
+        self.lock.release()
+        return res
 
 def find_state_by_name(th, name):
     for s in th.history:
@@ -107,19 +116,22 @@ def deploy_contract(file_name, contract_name = None):
     if contract_address == "NOT FOUND":
         raise Exception("contract address not found")
 
+    user_address_mapping["contract"] = contract_address
     return contract_address
 
 
 def instantiate_contract(var_name):
-    # hard coded
+
     f = open("./Lottery_new","r")
     source = ""
     for line in f:
         source += line
     send_and_get_response("var contractSource = \"" + cc.remove_endl(source) + "\"")
     send_and_get_response("var contractCompiled = web3.eth.compile.solidity(contractSource)")
-    send_and_get_response("var " + var_name + " = eth.contract(contractCompiled[\"<stdin>:Lottery\"].info.abiDefinition).at(\"0xd3c0930fe752d90f81ca575670927793d78592cd\")")
-    send_and_get_response(None)
+    send_and_get_response("var " + var_name
+                          + " = eth.contract(contractCompiled[\"<stdin>:Lottery\"].info.abiDefinition)"
+                            ".at("+ user_address_mapping["contract"] + ")")
+    send_and_get_response(None, sleep_time=0, wait_round=1)
     return True
 
 
@@ -133,9 +145,8 @@ def start_receiving(buff):
 
 
 def get_mine_log_entry():
-    # hard coded, to be completed
     l = "contract balance: "
-    res = send_and_get_response("eth.getBalance(\"0xd3c0930fe752d90f81ca575670927793d78592cd\")")
+    res = send_and_get_response("eth.getBalance(" + user_address_mapping["contract"] + ")")
     for line in res:
         l += line
     return l
@@ -146,15 +157,6 @@ def gen_transactions(th, contract_name = "contractInstance"):
     global tr_address_log
     global tr_command_log
 
-    """
-    for t in state.transactions:
-        for i in range (0, t.repeat.gen_random_number()):
-            tran_str = cc.get_trans_command(t, contract_name)
-            res = send_and_get_response(tran_str)
-            tr_address_log.append(get_address_from_res(res))
-            tr_command_log.append(tran_str)
-            time.sleep(0.5)
-    """
     while True:
         MultiAgentModel.this_model.run_behaviors(state, th.behav_classes)
 
@@ -184,11 +186,8 @@ def gen_transactions(th, contract_name = "contractInstance"):
 
     print "finished generating transactions!!!!!!"
 
+
 def get_next_state(state, th):
-    """
-    if state == th.history[0]:
-        return th.history[1]
-    """
     import random
     r = random.uniform(0,1)
 
@@ -219,7 +218,7 @@ def main():
     s = Sender()
     thread.start_new_thread( start_receiving, (buff,))
     time.sleep(3)
-    send_and_get_response(None)
+    send_and_get_response(None, sleep_time=0, wait_round=1)
     send_and_get_response("personal.unlockAccount(eth.accounts[1],\"w123456\")")
     send_and_get_response("personal.unlockAccount(eth.accounts[2],\"w123456\")")
     send_and_get_response("personal.unlockAccount(eth.accounts[3],\"w123456\")")
@@ -237,6 +236,7 @@ def main():
 
     instantiate_contract("contractInstance")
 
+    """
     p = Parser()
     th = p.parse(p.read_file("Sample4.txt"))
 
@@ -250,7 +250,7 @@ def main():
 
         account_address = user_address_mapping[k]
         expected_bal_val = int(th.bal[k]) * 1000000000000000000
-        actual_bal_val = get_bal(account_address)
+        actual_bal_val = send_get_bal(account_address)
 
         if actual_bal_val - expected_bal_val > 1000000000000000000:
             ether_transfer_transaction = Transaction(from_account=k, to_account="bank", value=IntRange(str(actual_bal_val - expected_bal_val - 1000000000000000000)))
@@ -273,7 +273,7 @@ def main():
     global tr_address_log
     global tr_command_log
     global mine_log
-    
+
     f = open("./log",'a')
     f.write("Transaction Log:")
     for i in range (0,len(tr_address_log)):
@@ -298,7 +298,7 @@ def main():
 
     for k in MultiAgentModel.this_model.agent_list:
         MultiAgentModel.this_model.agent_list[k].stop()
-
+    """
     # allows the user to interact with geth
     while True:
         count_old = count
@@ -334,7 +334,7 @@ def mine_a_few_blocks():
             return True
 
 
-def send_and_get_response(msg, sleep_time = 0.5, print_output = True):
+def send_and_get_response(msg, sleep_time=0.5, print_output=True, wait_round=20):
     count_old = count
 
     if msg is not None:
@@ -345,11 +345,11 @@ def send_and_get_response(msg, sleep_time = 0.5, print_output = True):
 
     time.sleep(sleep_time)
     res = []
-    for i in range(0,20):
+    for i in range(0,wait_round):
         time.sleep(0.1)
-        if count > count_old:      
+        if count > count_old:
             if print_output:
-                print "------message received------"  
+                print "------message received------"
                 print "buff size: "+ str(len(buff))
             for j in range(count_old, count):
                 res.append(buff[j])
@@ -370,7 +370,7 @@ def get_block_number():
     return -1
 
 
-def get_bal(address):
+def send_get_bal(address):
     res = send_and_get_response("eth.getBalance(" + address + ")", print_output=False)
     for r in res:
         try:
@@ -431,7 +431,6 @@ def main2():
                 print "------message received---"
                 print "buff size: "+ str(len(buff))
                 for j in range(count_old, count):
-                    # print "-------------" + str(j)
                     print buff[j]
                 break
         time.sleep(2)

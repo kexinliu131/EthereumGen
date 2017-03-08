@@ -60,8 +60,10 @@ class MyBehav(spade.Behaviour.OneShotBehaviour):
     def __init__(self):
         spade.Behaviour.OneShotBehaviour.__init__(self)
 
-    def get_bal(self):
-        return MultiAgentModel.this_model.handler.agent_get_bal(self.myAgent.id)
+    def get_bal(self, str = None):
+        if str is None:
+            return MultiAgentModel.this_model.handler.agent_get_bal(self.myAgent.id)
+        return MultiAgentModel.this_model.handler.agent_get_bal(str)
 
     def onEnd(self):
         # print "on end before acquiring lock"
