@@ -56,7 +56,7 @@ class Parser:
             if c == "endstate":
                 self.parsing_state = False
             elif c == "endbehav":
-                print "endbehav"
+                # print "endbehav"
                 if not self.parsing_behav:
                     raise Exception("behav - endbehav not matched!")
                 self.parsing_behav = False
@@ -70,7 +70,7 @@ class Parser:
                     raise Exception("edges - endedges not matched!")
                 self.parsing_edge = False
             elif c == "fork":
-                if self.parsing_behav or not self.parsing_state:
+                if self.parsing_behav or self.parsing_state:
                     raise Exception("invalid fork")
                 c, j = getNextToken(line, j)
                 fork_entry = []
@@ -80,7 +80,7 @@ class Parser:
                 c, j = getNextToken(line, j)
                 fork_entry.append(int(c))
                 print fork_entry
-                th.history[state_index].fork_list.append(fork_entry)
+                th.fork_list.append(fork_entry)
             elif c == "goto":
                 if self.parsing_behav or not self.parsing_state:
                     raise Exception("invalid goto")
@@ -89,7 +89,6 @@ class Parser:
                 goto_entry.append(c)
                 goto_entry.append(line[j:].replace(" ","").replace("\n",""))
                 print goto_entry
-                print eval(goto_entry[-1])
                 th.history[state_index].goto_list.append(goto_entry)
             elif self.parsing_edge:
                 vertex1 = c
@@ -311,7 +310,7 @@ def replace_var(string, dic):
 def main():
     p = Parser()
     th = p.parse(p.read_file("Sample4.txt"))
-
+    print th
 
 def getNextToken(string, index):
     start = 0

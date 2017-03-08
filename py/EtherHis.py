@@ -20,7 +20,6 @@ class State:
     def __init__(self, name, num_repeat = 1):
         self.repeat = num_repeat
         self.behaviors = []
-        self.fork_list = []
         self.goto_list = []
         self.name = name
 
@@ -32,9 +31,12 @@ class State:
         """
         state_str += "--------\n"
 
-        trans_str = "Transactions: \n"
+        trans_str = "Behaviors: \n"
         trans_str += "\n".join(str(tr) for tr in self.behaviors)
-        return state_str + trans_str
+
+        goto_str = "\n Goto: \n"
+        goto_str += "\n".join(str(tr) for tr in self.goto_list)
+        return state_str + trans_str + goto_str + "\n------------------------\n"
 
 
 class AgentBehaviorMapping:
@@ -49,6 +51,7 @@ class AgentBehaviorMapping:
 
 class TransactionHistory:
     def __init__(self):
+        self.fork_list = []
         self.history = []
         self.behav_classes = []
         self.edge = {}

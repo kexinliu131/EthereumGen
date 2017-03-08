@@ -69,6 +69,13 @@ class AgentBlockChainHandler:
         pass
 
 
+def find_state_by_name(th, name):
+    for s in th.history:
+        if s.name == name:
+            return s
+    return None
+
+
 def deploy_contract(file_name, contract_name = None):
     f = open(file_name, "r")
     source = ""
@@ -155,12 +162,26 @@ def gen_transactions(th, contract_name = "contractInstance"):
         mine_a_few_blocks()
         global mine_log
         mine_log.append([len(tr_address_log)-1, get_mine_log_entry()])
-        state = get_next_state(state, th)
+
+        state_chosen = False
+
+        for g in state.goto_list:
+            if eval(g[1]):
+                target_state = find_state_by_name(th, g[0])
+                state = target_state
+                state_chosen = True
+                print "expression " + g[1] + " evaluated to True"
+                break
+            else:
+                print "expression " + g[1] + " evaluated to False"
+        if not state_chosen:
+            state = get_next_state(state, th)
 
         if state == None:
             break
         else:
             print "STATE CHANGED TO: " + state.name
+
     print "finished generating transactions!!!!!!"
 
 def get_next_state(state, th):
@@ -182,13 +203,13 @@ def get_next_state(state, th):
     if edges is not None:
         for k in edges.keys():
             if edges[k] >= r:
-                for s in th.history:
-                    if s.name == k:
-                        return s
-                raise Exception("Invalid state name in get_next_state()")
+                s = find_state_by_name(th, k)
+                if s is None:
+                    raise Exception("Invalid state name in get_next_state():" + k)
+                return s
             else:
                 r -= edges[k]
-        raise Exception("invalid probability in get_next_state()")
+
     return None
 
 
@@ -217,7 +238,7 @@ def main():
     instantiate_contract("contractInstance")
 
     p = Parser()
-    th = p.parse(p.read_file("Sample3.txt"))
+    th = p.parse(p.read_file("Sample4.txt"))
 
     print th
 
