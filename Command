@@ -1,0 +1,16 @@
+install geth:
+sudo apt-get install software-properties-common
+sudo add-apt-repository -y ppa:ethereum/ethereum
+sudo apt-get update
+sudo apt-get install ethereum
+
+install SPADE:
+git clone https://github.com/javipalanca/spade.git
+cd SPADE
+python setup.py install
+
+run SPADE:
+python runspace.py
+
+run geth client:
+nc -l 8881 | geth --datadir="./PrivateEtherData" -verbosity 6 --ipcdisable --port 30301 --rpcport 8101 --networkid "2387" console 2>> ./PrivateEtherData/01.log | nc 127.0.0.1 8882
