@@ -12,9 +12,9 @@ bal user4 10
 bal user5 10
 bal user6 10
 
-state A 2
-# tr sender receiver value gas repeat function params
+fork user3 2 100
 
+state A 2
 behav 1
 def _process(self):
 	self.send_tran("contract", 1000000000000000000, 3000000, None, "buy", [0])
@@ -22,24 +22,15 @@ def _process(self):
 	self.send_tran("contract", 1000000000000000000, 3000000, None, "buy", [2])
 	self.send_tran("contract", 1000000000000000000, 3000000, None, "buy", [3])
 	self.send_tran("contract", 1000000000000000000, 3000000, None, "buy", [4])
-	while self.get_glob("test") is None:
-		sleep(2)
-	self.set_glob("test", self.get_glob("test")+1)
 	print "Hello World from a OneShot "
-	print "-----------in behav 1 test:" + str(self.get_glob("test"))
-endbehav
-
-behav 2
-def _process(self):
-	print "-----------in behav 2"
-	self.set_glob("test",10)
-	print "-----------in behav 2 after set glob"
 endbehav
 
 behav 3-5
 def _process(self):
 	self.send_tran("contract", 1000000000000000000, 3000000, None, "buy", [IntRange("0_4")])
 endbehav
+
+goto B 3>1
 endstate
 
 state B
@@ -48,8 +39,11 @@ def _process(self):
 	print str(self.get_bal())
 	self.send_tran("contract", 0, 3000000, None, "finishRound")
 endbehav
+
+goto A get_bal("user1")>1000000000000000000
 endstate
 
 edges
-A B 0.8 A 0.2
+A B 0.5
+B A 0.4 B 0.5
 endedges
