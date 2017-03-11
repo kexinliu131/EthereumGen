@@ -1,7 +1,7 @@
 from parser import *
 from TCPSendReceive import *
 from CommandCreator import *
-from SpadeModel import MultiAgentModel, MyBehav
+from SpadeModel import MultiAgentModel, MyBehav, MyAgent
 import thread
 import time
 import threading
@@ -46,6 +46,7 @@ class AgentBlockChainHandler:
         # print "AgentBlockChainHandler init"
         self.lock = threading.Lock()
         self.cc = CommandCreator()
+        self.generated_transaction_count = 0
 
     def agent_send_tran(self, tr):
         self.lock.acquire()
@@ -57,6 +58,7 @@ class AgentBlockChainHandler:
         res = send_and_get_response(tran_str)
         tr_address_log.append(get_address_from_res(res))
         tr_command_log.append(tran_str)
+        MultiAgentModel.this_model.handler.generated_transaction_count += 1
         time.sleep(0.2)
         # print "AgentBlockChainHandler send tran finished"
         self.lock.release()
@@ -154,12 +156,37 @@ def get_mine_log_entry():
 
 
 def gen_transactions(th, contract_name = "contractInstance"):
+
+    # existing_fork_list is a dictionary, key is the agent name value is a list of indexes of forked agent
+    # for example:
+    # fork_list = {
+    # user2 : [5,6],
+    # user3 : [7]
+    # }
+    existing_fork_list = {}
+
+    #hard coded
+    fork_start_index = 7
+
     state = th.history[0]
     global tr_address_log
     global tr_command_log
 
     while True:
-        MultiAgentModel.this_model.run_behaviors(state, th.behav_classes)
+
+        for fork_entry in th.fork_list:
+            if MultiAgentModel.this_model.handler.generated_transaction_count >= fork_entry[2] > 0:
+                if fork_entry[0] not in existing_fork_list.keys():
+                    existing_fork_list[fork_entry[0]] = []
+                for fork_count in range (0, fork_entry[2]):
+                    existing_fork_list[fork_entry[0]].append(fork_start_index)
+                    MultiAgentModel.this_model.agent_list[fork_start_index] = MyAgent("agent" + str(fork_start_index) + "@127.0.0.1", "secret");
+                    MultiAgentModel.this_model.agent_list[fork_start_index].id = "user" + str(fork_start_index)
+                    MultiAgentModel.this_model.agent_list[fork_start_index].start()
+                    fork_start_index += 1
+                fork_entry[2] *= -1
+
+        MultiAgentModel.this_model.run_behaviors(state, th.behav_classes, existing_fork_list)
 
         print "----------------------mine!----------------------"
         mine_a_few_blocks()

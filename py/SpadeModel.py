@@ -26,7 +26,7 @@ class MultiAgentModel:
     def __str__(self):
         return "MultiAgentModel"
 
-    def run_behaviors(self, state, behav_classes):
+    def run_behaviors(self, state, behav_classes, fork_list=None):
         if state.behaviors == []:
             return
 
@@ -35,8 +35,16 @@ class MultiAgentModel:
 
         for behav in state.behaviors:
             # print str(behav[0]) + "   " + str(behav[1]) + "   " + str(len(behav_classes)) + "   " + str(len(behav))
-            MultiAgentModel.this_model.agent_list[behav[0]].addBehaviour(behav_classes[behav[1]]())
+            current_agent = MultiAgentModel.this_model.agent_list[behav[0]]
+            current_behavior_class = behav_classes[behav[1]]
+            current_agent.addBehaviour(current_behavior_class())
+
+            if fork_list is not None and current_agent.id in fork_list.keys():
+                for agent_index in fork_list[current_agent.id]:
+                    self.agent_list[agent_index].addBehaviour(current_behavior_class())
+
             # print "finished add behaviour"
+
         MultiAgentModel.state_lock.acquire()
         MultiAgentModel.state_lock.release()
         return
