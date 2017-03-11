@@ -78,6 +78,7 @@ class AgentBlockChainHandler:
         self.lock.release()
         return res
 
+
 def find_state_by_name(th, name):
     for s in th.history:
         if s.name == name:
@@ -120,16 +121,16 @@ def deploy_contract(file_name, contract_name = None):
     return contract_address
 
 
-def instantiate_contract(var_name):
+def instantiate_contract(var_name, source_file, contract_name):
 
-    f = open("./Lottery_new","r")
+    f = open(source_file,"r")
     source = ""
     for line in f:
         source += line
     send_and_get_response("var contractSource = \"" + cc.remove_endl(source) + "\"")
     send_and_get_response("var contractCompiled = web3.eth.compile.solidity(contractSource)")
     send_and_get_response("var " + var_name
-                          + " = eth.contract(contractCompiled[\"<stdin>:Lottery\"].info.abiDefinition)"
+                          + " = eth.contract(contractCompiled[\"<stdin>:" + contract_name + "\"].info.abiDefinition)"
                             ".at("+ user_address_mapping["contract"] + ")")
     send_and_get_response(None, sleep_time=0, wait_round=1)
     return True
@@ -213,38 +214,47 @@ def get_next_state(state, th):
 
 
 def main():
+
+    import sys
+    contract_source_file = "./Lottery_new"
+    configuration_file = "Sample4.txt"
+
+    if len(sys.argv) >= 3:
+        contract_source_file = sys.argv[2]
+        configuration_file = sys.argv[1]
+
     r.start_listen()
     global s
     s = Sender()
     thread.start_new_thread( start_receiving, (buff,))
     time.sleep(3)
     send_and_get_response(None, sleep_time=0, wait_round=1)
-    send_and_get_response("personal.unlockAccount(eth.accounts[1],\"w123456\")")
-    send_and_get_response("personal.unlockAccount(eth.accounts[2],\"w123456\")")
-    send_and_get_response("personal.unlockAccount(eth.accounts[3],\"w123456\")")
-    send_and_get_response("personal.unlockAccount(eth.accounts[4],\"w123456\")")
-    send_and_get_response("personal.unlockAccount(eth.accounts[5],\"w123456\")")
-    send_and_get_response("personal.unlockAccount(eth.accounts[6],\"w123456\")")
 
-    # deploying contract
-    f = open("./Lottery_new","r")
+    for i in range(0, 7):
+        send_and_get_response("personal.unlockAccount(eth.accounts[" + str(i) +"],\"w123456\")")
+
+    f = open(contract_source_file,"r")
     source = ""
     for line in f:
         source += line
 
-    print(str(get_block_number()))
+    contract_name = cc.get_contract_name(source)
 
-    instantiate_contract("contractInstance")
+    # deploying contract
+    contract_address = deploy_contract(contract_source_file, contract_name)
 
-    """
+    print '\x1b[6;30;42m' + "contract successfully deployed at the following address:" + '\x1b[0m'
+    print '\x1b[6;30;42m' + contract_address + "\n" + '\x1b[0m'
+
+    instantiate_contract("contractInstance", contract_source_file, contract_name)
+
     p = Parser()
-    th = p.parse(p.read_file("Sample4.txt"))
+    th = p.parse(p.read_file(configuration_file))
 
     print th
 
     need_transfer = False
     for k in th.bal.keys():
-
         if k not in user_address_mapping.keys():
             continue
 
@@ -274,7 +284,7 @@ def main():
     global tr_command_log
     global mine_log
 
-    f = open("./log",'a')
+    f = open("./log",'w')
     f.write("Transaction Log:")
     for i in range (0,len(tr_address_log)):
         f.write("-" * 40 + "\n")
@@ -298,7 +308,7 @@ def main():
 
     for k in MultiAgentModel.this_model.agent_list:
         MultiAgentModel.this_model.agent_list[k].stop()
-    """
+
     # allows the user to interact with geth
     while True:
         count_old = count
@@ -451,5 +461,4 @@ def main3():
     print str(get_next_state(th.history[0], th))
 
 if __name__ == "__main__":
-    # main3()
     main()

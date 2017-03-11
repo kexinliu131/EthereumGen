@@ -1,16 +1,30 @@
+------ for NCL ------
+(need sudo permission to write)
+
 install geth:
 sudo apt-get install software-properties-common
 sudo add-apt-repository -y ppa:ethereum/ethereum
 sudo apt-get update
 sudo apt-get install ethereum
 
+install solidity compiler:
+sudo apt-get install solc
+
 install SPADE:
-git clone https://github.com/javipalanca/spade.git
+sudo git clone https://github.com/javipalanca/spade.git
 cd SPADE
-python setup.py install
+sudo python setup.py install
+
+configure SPADE:
+sudo python configure.py 127.0.0.1
 
 run SPADE:
-python runspace.py
+sudo python runspace.py
 
 run geth client:
-nc -l 8881 | geth --datadir="./PrivateEtherData" -verbosity 6 --ipcdisable --port 30301 --rpcport 8101 --networkid "2387" console 2>> ./PrivateEtherData/01.log | nc 127.0.0.1 8882
+sudo nc -l 8881 | sudo geth --datadir="./PrivateEtherData" -verbosity 6 --ipcdisable --port 30301 --rpcport 8101 --networkid "2387" console 2> ./PrivateEtherData/01.log | sudo nc 127.0.0.1 8882
+
+run transaction generation tool:
+sudo python Generator.py /path/to/configuration/file /path/to/contract/source/code
+
+
