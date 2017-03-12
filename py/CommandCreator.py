@@ -62,11 +62,9 @@ class CommandCreator:
                    + ", gas : " + str(tr.gas.gen_random_number()) + data_str + "})"
         return res
 
-    def get_deploy_commands(self, source, contract_name = None, params = [],gas=IntRange("3000000")):
+    def get_deploy_commands(self, source, contract_name, params = [],gas=IntRange("3000000")):
         source = self.remove_endl(source)
 
-        if contract_name is None:
-            contract_name = self.get_contract_name(source)
         res = []
         res.append("var codeSource = \'" + source + '\'')
         res.append("var codeCompiled = web3.eth.compile.solidity(codeSource)");
@@ -91,6 +89,9 @@ class CommandCreator:
         res.append(create_instance_command)
         return res
 
+    """
+    # not working
+
     def get_contract_name(self, source):
 
         i = string.find(source, "contract")
@@ -108,6 +109,7 @@ class CommandCreator:
             j += 1
 
         return source[i:j]
+    """
 
     def remove_endl(self, code):
         return string.replace(code, "\n", "")

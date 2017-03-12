@@ -88,7 +88,7 @@ def find_state_by_name(th, name):
     return None
 
 
-def deploy_contract(file_name, contract_name = None):
+def deploy_contract(file_name, contract_name):
     f = open(file_name, "r")
     source = ""
     for line in f:
@@ -128,6 +128,9 @@ def instantiate_contract(var_name, source_file, contract_name):
     f = open(source_file,"r")
     source = ""
     for line in f:
+        line = line.strip()
+        if len(line) >= 2 and line[0:2] == "//":
+            continue
         source += line
     send_and_get_response("var contractSource = \"" + cc.remove_endl(source) + "\"")
     send_and_get_response("var contractCompiled = web3.eth.compile.solidity(contractSource)")
@@ -245,10 +248,12 @@ def main():
     import sys
     contract_source_file = "./Lottery_new"
     configuration_file = "Sample4.txt"
+    contract_name = "Lottery"
 
     if len(sys.argv) >= 3:
-        contract_source_file = sys.argv[2]
-        configuration_file = sys.argv[1]
+        contract_source_file = sys.argv[3]
+        configuration_file = sys.argv[2]
+        contract_name = sys.argv[1]
 
     r.start_listen()
     global s
@@ -259,13 +264,6 @@ def main():
 
     for i in range(0, 7):
         send_and_get_response("personal.unlockAccount(eth.accounts[" + str(i) +"],\"w123456\")")
-
-    f = open(contract_source_file,"r")
-    source = ""
-    for line in f:
-        source += line
-
-    contract_name = cc.get_contract_name(source)
 
     # deploying contract
     contract_address = deploy_contract(contract_source_file, contract_name)

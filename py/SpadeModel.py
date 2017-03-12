@@ -110,6 +110,9 @@ class MyBehav(spade.Behaviour.OneShotBehaviour):
         MultiAgentModel.this_model.var_list[key] = value
         MultiAgentModel.var_lock.release()
 
+    def call(self, function_str):
+        return MultiAgentModel.this_model.handler.agent_call(function_str)
+
     def __str__(self):
         return "Inherited from MyBehav Object\nclass name:" + str(self.__class__) + "\n\n"
 

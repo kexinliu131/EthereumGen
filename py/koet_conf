@@ -1,0 +1,30 @@
+bal user0 100
+bal user1 10
+bal user2 20
+bal user3 40
+
+state A
+behav 1-3
+def _process(self):
+	val = int(self.call("currentClaimPrice"))
+	print "current claim price is " + str(val)
+	if self.get_bal() > val:
+		self.send_tran("contract", val, 3000000, self.myAgent.id)
+		self.set_glob("bought", True)
+endbehav
+endstate
+
+state B
+behav 0
+def _process(self):
+	bought = self.get_glob("bought")
+	if (bought is None or bought == False):
+		self.send_tran("contract", 0, 3000000, None, "sweepCommission", [self.get_bal("contract")])
+		set_glob("end", True)
+endbehav
+goto end get_glob("end")==True
+endstate
+
+edges
+A B
+endedges
