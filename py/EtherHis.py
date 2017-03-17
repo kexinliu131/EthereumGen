@@ -158,9 +158,14 @@ class Transaction:
         return True
 
     def __str__(self):
-        from CommandCreator import CommandCreator
-        cc = CommandCreator()
-        return cc.get_trans_command(self)
+        result = "Transaction from:" + self.from_account + " to:" + self.to_account
+        if self.data is not None:
+            result += (" data:" + str(self.data))
+        if self.function != "":
+            result += (" function:" + self.function)
+        if self.param != []:
+            result += (" param:" + str(self.param))
+        return result
 
 
 def main():
