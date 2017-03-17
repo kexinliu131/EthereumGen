@@ -22,9 +22,9 @@ mine_log = []
 def get_glob(key):
     print "INSIDE GETGLOBAL"
     MultiAgentModel.var_lock.acquire()
-    if key not in MultiAgentModel.this_model.var_list.keys():
-        return None
-    value = MultiAgentModel.this_model.var_list[key]
+    value = None
+    if key in MultiAgentModel.this_model.var_list.keys():
+        value = MultiAgentModel.this_model.var_list[key]
     MultiAgentModel.var_lock.release()
     return value
 
@@ -132,7 +132,7 @@ def instantiate_contract(var_name, source_file, contract_name):
         if len(line) >= 2 and line[0:2] == "//":
             continue
         source += line
-    send_and_get_response("var contractSource = \"" + cc.remove_endl(source) + "\"")
+    send_and_get_response("var contractSource = \'" + cc.remove_endl(source) + "\'")
     send_and_get_response("var contractCompiled = web3.eth.compile.solidity(contractSource)")
     send_and_get_response("var " + var_name
                           + " = eth.contract(contractCompiled[\"<stdin>:" + contract_name + "\"].info.abiDefinition)"
@@ -215,8 +215,6 @@ def gen_transactions(th, contract_name = "contractInstance"):
         else:
             print "STATE CHANGED TO: " + state.name
 
-    print "finished generating transactions!!!!!!"
-
 
 def get_next_state(state, th):
     import random
@@ -263,7 +261,7 @@ def main():
     send_and_get_response(None, sleep_time=0, wait_round=1)
 
     for i in range(0, 7):
-        send_and_get_response("personal.unlockAccount(eth.accounts[" + str(i) +"],\"w123456\")")
+        send_and_get_response("personal.unlockAccount(eth.accounts[" + str(i) +"],\"w123456\",0)")
 
     # deploying contract
     contract_address = deploy_contract(contract_source_file, contract_name)
@@ -328,8 +326,7 @@ def main():
     f.close()
 
     print "\nFinished generating transactions. Type to interact with geth console."
-
-    print str(MultiAgentModel.this_model.var_list)
+    print MultiAgentModel.this_model.var_list
 
     for k in MultiAgentModel.this_model.agent_list:
         MultiAgentModel.this_model.agent_list[k].stop()

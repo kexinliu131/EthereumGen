@@ -37,7 +37,7 @@ class CommandCreator:
         # print "data_str: " + data_str + "\n"
 
         # normal transaction
-        if (tr.to_account != 'contract'):
+        if (tr.to_account != 'contract' or tr.function == ""):
             res += "eth.sendTransaction({from:" + self.get_account_str(tr.from_account) \
                    + ", to:" + self.get_account_str(tr.to_account) + ", value: " + str(tr.value.gen_random_number()) \
                    + ", gas : " + str(tr.gas.gen_random_number()) + data_str + "})"

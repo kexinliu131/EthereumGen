@@ -98,9 +98,9 @@ class MyBehav(spade.Behaviour.OneShotBehaviour):
     def get_glob(self, key):
         print "INSIDE GETGLOBAL"
         MultiAgentModel.var_lock.acquire()
-        if key not in MultiAgentModel.this_model.var_list.keys():
-            return None
-        value = MultiAgentModel.this_model.var_list[key]
+        value = None
+        if key in MultiAgentModel.this_model.var_list.keys():
+            value = MultiAgentModel.this_model.var_list[key]
         MultiAgentModel.var_lock.release()
         return value
 
@@ -109,6 +109,7 @@ class MyBehav(spade.Behaviour.OneShotBehaviour):
         MultiAgentModel.var_lock.acquire()
         MultiAgentModel.this_model.var_list[key] = value
         MultiAgentModel.var_lock.release()
+        print "FINISH SETGLOBAL"
 
     def call(self, function_str):
         return MultiAgentModel.this_model.handler.agent_call(function_str)
