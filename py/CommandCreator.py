@@ -36,20 +36,31 @@ class CommandCreator:
 
         # print "data_str: " + data_str + "\n"
 
+        trans_value = tr.value
+        if isinstance(trans_value, IntRange):
+            trans_value = trans_value.gen_random_number()
+
+        trans_gas = tr.gas
+        if isinstance(trans_gas, IntRange):
+            trans_gas = trans_gas.gen_random_number()
+
         # normal transaction
-        if (tr.to_account != 'contract' or tr.function == ""):
+        if (tr.to_account != 'contract' and tr.to_account != 'attacker' ) or tr.function == "":
             res += "eth.sendTransaction({from:" + self.get_account_str(tr.from_account) \
-                   + ", to:" + self.get_account_str(tr.to_account) + ", value: " + str(tr.value.gen_random_number()) \
-                   + ", gas: " + str(tr.gas.gen_random_number()) + data_str + "})"
+                   + ", to:" + self.get_account_str(tr.to_account) + ", value: " + str(trans_value) \
+                   + ", gas: " + str(trans_gas) + data_str + "})"
 
         # transaction to this contract
         else:
-            if contract_name == "":
-                return "Please specify contract name!"
-            res += contract_name + "."
+            if tr.to_account == 'contract':
+                res += contract_name + "."
+            elif tr.to_account == 'attacker':
+                res += "attacker."
+            else:
+                raise Exception("Unexpected to account")
 
-            if tr.function != "":
-                res += tr.function + "."
+            res += tr.function + "."
+
             res += "sendTransaction("
             # print "param length: " + str(len(tr.param))
             for j in range(0, len(tr.param)):
@@ -58,8 +69,9 @@ class CommandCreator:
                 else:
                     res += str(tr.param[j])
                 res += ","
-            res += "{from: " + user_address_mapping[tr.from_account] + ", value : " + str(tr.value.gen_random_number()) \
-                   + ", gas: " + str(tr.gas.gen_random_number()) + data_str + "})"
+
+            res += "{from: " + user_address_mapping[tr.from_account] + ", value : " + str(trans_value) \
+                   + ", gas: " + str(trans_gas) + data_str + "})"
         return res
 
     def get_deploy_commands(self, source, contract_name, params = [],gas=IntRange("3000000")):

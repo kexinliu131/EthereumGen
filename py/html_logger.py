@@ -53,7 +53,7 @@ class HTMLFileHandler(logging.FileHandler):
     def close(self):
         # finish document
         self.stream.write(_END_OF_DOC_FMT)
-        super(HTMLFileHandler, self).close(HTMLFileHandler, self)
+        super(HTMLFileHandler, self).close()
 
 
 class HTMLFormatter(logging.Formatter):

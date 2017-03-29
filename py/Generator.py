@@ -1,6 +1,6 @@
 from parser import *
 from TCPSendReceive import *
-from CommandCreator import *
+import CommandCreator
 from SpadeModel import MultiAgentModel, MyBehav, MyAgent
 from html_logger import *
 import thread
@@ -8,7 +8,7 @@ import time
 import threading
 
 r = Receiver()
-cc = CommandCreator()
+cc = CommandCreator.CommandCreator()
 buff = {}
 count = 0
 
@@ -17,16 +17,6 @@ pending_transaction_log = []
 log_index = 1
 
 logger = None
-
-
-def goodbye():
-    print "goodbye"
-    logging.shutdown()
-
-
-import atexit
-
-atexit.register(goodbye)
 
 
 def get_glob(key):
@@ -55,7 +45,7 @@ class AgentBlockChainHandler:
     def __init__(self):
         # print "AgentBlockChainHandler init"
         self.lock = threading.Lock()
-        self.cc = CommandCreator()
+        self.cc = CommandCreator.CommandCreator()
         self.generated_transaction_count = 0
 
     def agent_send_tran(self, tr):
@@ -79,9 +69,9 @@ class AgentBlockChainHandler:
 
     def agent_get_bal(self, id):
         self.lock.acquire()
-        # print "AgentBlockChainHandler get bal" + user_address_mapping[id]
+        # print "AgentBlockChainHandler get bal" + CommandCreator.user_address_mapping[id]
         send_and_get_response(None, print_output=False, sleep_time=0, wait_round=1)
-        res = send_get_bal(user_address_mapping[id])
+        res = send_get_bal(CommandCreator.user_address_mapping[id])
         # print "AgentBlockChainHandler get bal finished"
         self.lock.release()
         return res
@@ -93,6 +83,24 @@ class AgentBlockChainHandler:
         self.lock.release()
         return res
 
+    def deploy_reentry_attack(self, attacked_address):
+        self.lock.acquire()
+
+        print "inside handler deploy reentry attack"
+        try:
+            from AttackString import reentry_attack_str
+            attacker_address = deploy_attack_contract(reentry_attack_str % {"address":attacked_address} , "EvilRecipient")
+            tr = Transaction("bank","attacker",10000000000000000000)
+            send_and_get_response(cc.get_trans_command(tr))
+            mine_a_few_blocks()
+        except Exception as e:
+            print e
+
+        print "finish deploy reentry attack"
+
+        self.lock.release()
+        return attacker_address
+
 
 def find_state_by_name(th, name):
     for s in th.history:
@@ -101,14 +109,45 @@ def find_state_by_name(th, name):
     return None
 
 
-def deploy_contract(file_name, contract_name):
-    f = open(file_name, "r")
+def deploy_attack_contract(txt, contract_name):
+
+    source = txt.replace("\n", "")
+
+    commands = [command.replace("contractInstance", "attacker") for command in cc.get_deploy_commands(cc.remove_endl(source), contract_name)]
+    send_and_get_response(commands[0])
+    send_and_get_response(commands[1])
+    send_and_get_response(commands[2])
+
+    res = send_and_get_response(commands[3])
+
+    transaction_hash = get_address_from_res(res)
+    if transaction_hash == "NOT FOUND":
+        raise Exception("Deploy Attacker Contract Unsuccessful!")
+
+    mine_a_few_blocks()
+
+    res = send_and_get_response("eth.getTransactionReceipt(" + transaction_hash + ")")
+
+    contract_address = get_address_from_res(res, "contractAddress:", 40)
+    if contract_address == "NOT FOUND":
+        raise Exception("attacker address not found")
+
+    CommandCreator.user_address_mapping["attacker"] = contract_address
+    print CommandCreator.user_address_mapping
+    return contract_address
+
+
+def deploy_contract(txt, contract_name):
+
     source = ""
+    f = open(txt, "r")
     for line in f:
         line = line.strip()
         if len(line) >= 2 and line[0:2] == "//":
             continue
         source += line
+
+
     commands = cc.get_deploy_commands(cc.remove_endl(source), contract_name)
     send_and_get_response(commands[0])
     send_and_get_response(commands[1])
@@ -132,7 +171,8 @@ def deploy_contract(file_name, contract_name):
     if contract_address == "NOT FOUND":
         raise Exception("contract address not found")
 
-    user_address_mapping["contract"] = contract_address
+    CommandCreator.user_address_mapping["contract"] = contract_address
+    print CommandCreator.user_address_mapping
     return contract_address
 
 
@@ -149,7 +189,7 @@ def instantiate_contract(var_name, source_file, contract_name):
     send_and_get_response("var " + var_name
                           + " = eth.contract(contractCompiled[\"<stdin>:" + contract_name + "\"].info.abiDefinition)"
                                                                                             ".at(" +
-                          user_address_mapping["contract"] + ")")
+                          CommandCreator.user_address_mapping["contract"] + ")")
     send_and_get_response(None, sleep_time=0, wait_round=1)
     return True
 
@@ -165,7 +205,7 @@ def start_receiving(buff):
 
 def get_mine_log_entry():
     l = "contract balance: "
-    res = send_and_get_response("eth.getBalance(" + user_address_mapping["contract"] + ")")
+    res = send_and_get_response("eth.getBalance(" + CommandCreator.user_address_mapping["contract"] + ")")
     for line in res:
         l += line
     return l
@@ -240,7 +280,9 @@ def gen_transactions(th, contract_name="contractInstance"):
         print "----------------------mine!----------------------"
         mine_a_few_blocks()
 
-        write_logs()
+        global pending_transaction_log
+        if len(pending_transaction_log) > 0:
+            write_logs()
 
         state_chosen = False
 
@@ -316,6 +358,7 @@ def main():
 
     instantiate_contract("contractInstance", contract_source_file, contract_name)
 
+
     global logger
     logger = HTMLLogger("Transactions Generated for " + contract_name + " at address " + contract_address)
 
@@ -326,10 +369,10 @@ def main():
 
     need_transfer = False
     for k in th.bal.keys():
-        if k not in user_address_mapping.keys():
+        if k not in CommandCreator.user_address_mapping.keys():
             continue
 
-        account_address = user_address_mapping[k]
+        account_address = CommandCreator.user_address_mapping[k]
         expected_bal_val = int(th.bal[k]) * 1000000000000000000
         actual_bal_val = send_get_bal(account_address)
 
@@ -363,6 +406,10 @@ def main():
     while True:
         count_old = count
         msg = raw_input()
+
+        if msg == "exit":
+            exit()
+
         s.send(msg)
         print "------message sent-------count : " + str(count)
         print msg
@@ -530,4 +577,9 @@ def main3():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print e
+    finally:
+        logging.shutdown()

@@ -83,6 +83,11 @@ class MyBehav(spade.Behaviour.OneShotBehaviour):
         if MultiAgentModel.this_model.running_agent == 0:
             MultiAgentModel.state_lock.release()
 
+    def deploy_reentry_attack(self):
+        print "agent deploy reentry attack"
+        from CommandCreator import user_address_mapping
+        MultiAgentModel.this_model.handler.deploy_reentry_attack(user_address_mapping["contract"].replace("\"",""))
+
     def send_tran(self, toAccount, value = IntRange("0"), gas = IntRange("300000"), data = None, function = "", param = []):
         # print "send transaction in behavior"
         if (isinstance(value, numbers.Integral)):
@@ -94,6 +99,9 @@ class MyBehav(spade.Behaviour.OneShotBehaviour):
         # print "created tr object"
         # print str(tr)
         return MultiAgentModel.this_model.handler.agent_send_tran(tr)
+
+    def reentry_attack(self):
+        pass
 
     def get_glob(self, key):
         print "INSIDE GETGLOBAL"
